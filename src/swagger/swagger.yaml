@@ -1,11 +1,11 @@
-# IDM API Swagger
+# leblum API Swagger
 # as a demonstration of an API spec in YAML
 swagger: '2.0'
 info:
-  description: "This is the IDM RestAPI with a mongo db backing it.  You can see more about \
+  description: "This is the leblum RestAPI with a mongo db backing it.  You can see more about \
   \ [mongo](https://www.mongodb.com/), [express](https://expressjs.com/), [mongoose](http://mongoosejs.com/)"
   version: "1.0.0"
-  title: "IDM Rest API"
+  title: "leblum Rest API"
   contact:
     email: "davebrown.dev@gmail.com"
   license:

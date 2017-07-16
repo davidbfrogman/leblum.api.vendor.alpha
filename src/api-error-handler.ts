@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import log = require('winston');
+import { Config } from "./config/config";
 
 export class ApiErrorHandler {
     public static HandleApiError(error: Error & { status: number }, request: Request, response: Response, next: NextFunction) {
@@ -15,7 +16,7 @@ export class ApiErrorHandler {
             status: error.status,
             URL: request.url,
             method: request.method,
-            stack: error.stack,
+            stack: Config.activeConfig().returnCallStackOnError ? error.stack : '',
             requestBody: request.body
         });
     }

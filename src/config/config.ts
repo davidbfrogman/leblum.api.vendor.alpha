@@ -5,11 +5,10 @@ export const allconfigs = {
         jwtSecretToken: 'asdf97a9s8d7baodfbhoda8f7g9adf8asj',
         production: false,
         port: process.env.PORT || 8080,
+        returnCallStackOnError: true,
         isConsoleLoggingActive:true,
         FileUploadPath: './uploads/',
         IsAuthenticationActive: false,
-        mongoUserName: "dbrown",
-        mongoPassword: "password1"
     },
     unitTesting: {
         mongoConnectionString: process.env.MONGO_CONNECTION_STRING || "mongodb://dbrown:password1@ds161162.mlab.com:61162/leblum-vendor-api",
@@ -19,8 +18,7 @@ export const allconfigs = {
         port: process.env.PORT || 8080,
         isConsoleLoggingActive:true,
         IsAuthenticationActive: false,
-        mongoUserName: "dbrown",
-        mongoPassword: "password1"
+        returnCallStackOnError: true,        
     },
     prod: {
         mongoConnectionString: process.env.MONGO_CONNECTION_STRING ||  "mongodb://dbrown:password1@ds161162.mlab.com:61162/leblum-vendor-api",
@@ -30,8 +28,7 @@ export const allconfigs = {
         port: process.env.PORT || 8080,
         isConsoleLoggingActive:true,
         IsAuthenticationActive: true,
-        mongoUserName: "dbrown",
-        mongoPassword: "password1"
+        returnCallStackOnError: false,        
     },
 }
 
@@ -58,6 +55,5 @@ export interface IConfigType{
     port: number | string;
     isConsoleLoggingActive: boolean;
     IsAuthenticationActive: boolean;
-    mongoUserName: string;
-    mongoPassword: string;
+    returnCallStackOnError: boolean;
 }
