@@ -38,7 +38,6 @@ class Application {
     this.configureSwagger();
 
     this.express.listen(Config.activeConfig().port);
-    this.express.set('port', Config.activeConfig().port);
     log.info(`Listening on http://localhost:${Config.activeConfig().port}`);
   }
 
@@ -48,7 +47,7 @@ class Application {
     if (Config.activeConfig().isConsoleLoggingActive) {
       log.remove(log.transports.Console);
       log.add(log.transports.Console, { colorize: true });
-      this.express.use(morgan('dev')); //Using morgan middleware for logging all requests.
+      this.express.use(morgan('dev')); //Using morgan middleware for logging all requests.  the 'dev' here is just a particular format.
     }
     else {
       log.remove(log.transports.Console);
@@ -82,10 +81,9 @@ class Application {
 
   private routes(): void {
     log.info('Initializing Routers');
+    // The authentication endpoint is "Open", and should be added to the router pipeline before the other routers
     this.express.use('/authenticate', new routers.AuthenticationRouter().getRouter());
-    // We're not going to run authentication in dev.  This could get us in trouble later.
     this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
-
     this.express.use(Constants.AdminEndpoint, new routers.UserRouter().getRouter());
     this.express.use(Constants.AdminEndpoint, new routers.RoleRouter().getRouter());
     this.express.use(Constants.AdminEndpoint, new routers.PermissionRouter().getRouter());
