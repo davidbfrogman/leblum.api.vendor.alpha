@@ -39,7 +39,7 @@ export class AuthenticationController extends BaseController<IUserComposite> {
                             expiration: this.tokenExpiration
                         };
 
-                        let token = jwt.sign(tokenPayload, Config.activeConfig().jwtSecretToken, {
+                        let token = jwt.sign(tokenPayload, Config.active.get('jwtSecretToken'), {
                             expiresIn: tokenPayload.expiration
                         });
 
@@ -67,7 +67,7 @@ export class AuthenticationController extends BaseController<IUserComposite> {
         // decode token
         if (token) {
             // verifies secret and checks exp
-            jwt.verify(token, Config.activeConfig().jwtSecretToken, (err, decodedToken: ITokenPayload) => {
+            jwt.verify(token, Config.active.get('jwtSecretToken'), (err, decodedToken: ITokenPayload) => {
                 if (err) {
                     this.sendAuthFailure(response, 401, 'Failed to authenticate token. The timer *may* have expired on this token.');
                 } else {
@@ -84,7 +84,7 @@ export class AuthenticationController extends BaseController<IUserComposite> {
                                 expiration: this.tokenExpiration
                             };
 
-                            let newToken = jwt.sign(tokenPayload, Config.activeConfig().jwtSecretToken, {
+                            let newToken = jwt.sign(tokenPayload,Config.active.get('jwtSecretToken'), {
                                 expiresIn: tokenPayload.expiration
                             });
 
@@ -111,7 +111,7 @@ export class AuthenticationController extends BaseController<IUserComposite> {
         // decode token
         if (token) {
             // verifies secret and checks exp
-            jwt.verify(token, Config.activeConfig().jwtSecretToken, (err, decodedToken) => {
+            jwt.verify(token, Config.active.get('jwtSecretToken'), (err, decodedToken) => {
                 if (err) {
                     return this.sendAuthFailure(response, 401, 'Failed to authenticate token. The timer *may* have expired on this token.');
                 } else {
