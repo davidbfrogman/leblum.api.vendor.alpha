@@ -8,7 +8,7 @@
     "type": "git"
   },
   "scripts": {
-    "start": "forever start dist/server.js",
+    "start": "npm build && npm api",
     "build": "gulp build",
     "watch": "gulp watch",
     "api": "nodemon dist/server.js --delay 4",
