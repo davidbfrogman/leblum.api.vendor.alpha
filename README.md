@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/davidbfrogman/leblum.api.vendor.alpha.svg?branch=master)](https://travis-ci.org/davidbfrogman/leblum.api.vendor.alpha)
+
 # Mongoose & Typescript & Express 
  
 Implementation of async - await methods in mongoose and express.
