@@ -8,12 +8,13 @@
     "type": "git"
   },
   "scripts": {
-    "start": "npm build && forever start dist/server.js",
+    "start": "forever start dist/server.js",
     "build": "gulp build",
     "watch": "gulp watch",
     "api": "nodemon dist/server.js --delay 4",
     "test": "mocha --opts mocha.config",
-    "test:auto": "mocha --opts mocha.config --watch"
+    "test:auto": "mocha --opts mocha.config --watch",
+    "postinstall": "gulp build"
   },
   "engines": {
     "node": ">= 5.4.1"
