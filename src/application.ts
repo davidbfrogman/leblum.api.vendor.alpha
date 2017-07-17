@@ -35,16 +35,16 @@ class Application {
     this.middleware();
     this.routes();
     this.handlers();
-    this.configureSwagger();
+    this.swagger();
 
-    this.express.listen(Config.activeConfig().port);
-    log.info(`Listening on http://localhost:${Config.activeConfig().port}`);
+    this.express.listen(Config.active.get('port'));
+    log.info(`Listening on http://localhost:${Config.active.get('port')}`);
   }
 
   // We want to configure logging so that if we're outputting it to the console
   // it's nice and colorized, otherwise we remove that transport.
   private configureLogging(): void {
-    if (Config.activeConfig().isConsoleLoggingActive) {
+    if (Config.active.get('isConsoleLoggingActive')) {
       log.remove(log.transports.Console);
       log.add(log.transports.Console, { colorize: true });
       this.express.use(morgan('dev')); //Using morgan middleware for logging all requests.  the 'dev' here is just a particular format.
@@ -56,7 +56,7 @@ class Application {
 
   // Sets up authentication, and sets it with our jwt secret token.
   private configureJWT() {
-    this.express.set('jwtSecretToken', Config.activeConfig().jwtSecretToken);
+    this.express.set('jwtSecretToken', Config.active.get('jwtSecretToken'));
   }
 
   // Configure Express middleware.
@@ -115,7 +115,7 @@ class Application {
 
   // This will allow us to serve the static homepage for our swagger definition
   // along with the swagger ui explorer.
-  private configureSwagger(): void {
+  private swagger(): void {
     this.express.use(Constants.APIDocsEndpoint, express.static(__dirname + '/swagger/swagger-ui'));
     this.express.use(Constants.APISwaggerDefinitionEndpoint, express.static(__dirname + '/swagger/'));
   }

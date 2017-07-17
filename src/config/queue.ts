@@ -3,7 +3,7 @@ import { Config } from './config'
 import { Constants } from "../constants";
 
 let jackrabbit = require('jackrabbit');
-let url = Config.activeConfig().AMPQConnectionString;
+let url = Config.active.get('ampq.ampqConnectionString');
 
 let rabbit = jackrabbit(url);
 log.info(`Connected to RabbitMQ on url:${url}`);
