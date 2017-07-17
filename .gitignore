@@ -65,3 +65,7 @@ typings
 /npm-debug.log
 coverage
 dist
+o-ri/launchy
+o-ri/launchy.bat
+*.bat
+o-ri/travis
