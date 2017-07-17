@@ -8,6 +8,7 @@
     "type": "git"
   },
   "scripts": {
+    "start": "npm build && forever start dist/server.js",
     "build": "gulp build",
     "watch": "gulp watch",
     "api": "nodemon dist/server.js --delay 4",
@@ -24,6 +25,7 @@
     "bluebird": "^3.5.0",
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
+    "forever": "^0.15.3",
     "convict": "^4.0.0",
     "crypto": "0.0.3",
     "del": "^3.0.0",
