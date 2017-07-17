@@ -1,34 +1,9 @@
-export enum ValidationType {
-    Length = 1,
-    Required = 2,
-    Regex = 3
-}
-
-export enum ProcessingState{
-    Uploaded = 1,
-    Transforming = 2,
-    Merging = 3,
-    Finished = 4
-}
-
-export enum FieldStyle {
-    String = 1,
-    Number = 2,
-    Time = 3,
-    Date = 4,
-    Timestamp = 5,
-    Boolean = 6,
-}
-
-export enum ResourceType{
-    icon = 1,
-    thumbnail = 2,
-    preview = 3,
-    small = 4,
-    medium = 5,
-    large = 6,
-    original = 7
-}
+// export enum ProcessingState{
+//     Uploaded = 1,
+//     Transforming = 2,
+//     Merging = 3,
+//     Finished = 4
+// }
 
 export class EnumHelper {
     public static getValuesFromEnum<E>(e: E): Array<Number> {
@@ -40,8 +15,6 @@ export class EnumHelper {
         return enumValues;
     }
 }
-
-
 
 //Enum Parsing - Remember basically you really need to cast it as string for it to work. 
 //var colorId = <string>myOtherObject.colorId; // Force string value here
