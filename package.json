@@ -11,7 +11,6 @@
     "build": "gulp build",
     "watch": "gulp watch",
     "api": "nodemon dist/server.js --delay 4",
-    "fp": "nodemon dist/file-processor/file-processor.js --delay 4",
     "test": "mocha --opts mocha.config",
     "test:auto": "mocha --opts mocha.config --watch"
   },
