@@ -51,7 +51,8 @@
     "vinyl-paths": "^2.1.0",
     "run-sequence": "^2.0.0",
     "require-dir": "^0.3.1",
-    "ts-node": "^3.0.2"
+    "ts-node": "^3.0.2",
+    "browser-sync": "^2.18.8"
   },
   "devDependencies": {
     "@types/convict": "^4.0.0",
@@ -69,7 +70,6 @@
     "@types/morgan": "^1.7.32",
     "@types/swagger-jsdoc": "0.0.1",
     "@types/winston": "^2.3.0",
-    "browser-sync": "^2.18.8",
     "chai": "^4.1.0",
     "chai-http": "^3.0.0",
     "concurrently": "^3.1.0",
