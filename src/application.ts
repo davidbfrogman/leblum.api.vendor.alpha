@@ -1,3 +1,4 @@
+const newRelic = require('newrelic');
 import * as express from 'express';
 import * as http from 'http';
 import * as compression from 'compression';

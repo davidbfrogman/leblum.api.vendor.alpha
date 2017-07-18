@@ -1,0 +1,20 @@
+config:
+  target: 'https://leblum-vendor-api-alpha.herokuapp.com'
+  phases:
+    -
+      duration: 60
+      arrivalRate: 50
+      name: "Middle Phase"
+    -
+      duration: 60
+      arrivalRate: 100
+      name: "High load phase"
+  defaults:
+    headers:
+      x-access-token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1OGY4YzhjYWVkZjcyOTJiZTgwYTkwZTQiLCJyb2xlcyI6WyI1OGY4YzdhZGVkZjcyOTJiZTgwYTkwZTEiXSwiZXhwaXJhdGlvbiI6IjI0aCIsImlhdCI6MTUwMDM2NTYzMywiZXhwIjoxNTAwNDUyMDMzfQ.3t4ekBjeVq4TXPbhUgrur2bfQony3mZZ5rDCrNeikdU'
+scenarios:
+  - flow:
+    - get:
+        url: "/api/admin/users"
+    - get:
+        url: "/api/admin/permissions"
