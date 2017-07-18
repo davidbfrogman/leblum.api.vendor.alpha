@@ -5,10 +5,6 @@ import log = require('winston');
 
 export class Database{
 
-    public constructor(){
-
-    }
-
     public connect(): Promise<boolean | void> {
         const connectionOptions: ConnectionOptions = {
             useMongoClient: true,
@@ -21,8 +17,8 @@ export class Database{
         }).catch(function (err) {
             log.info('error while trying to connect with mongodb', err);
         });
-
     }
+    
 }
 
 export { mongoose };

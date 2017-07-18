@@ -63,9 +63,8 @@ class Application {
       response.statusCode = this.setupComplete ? 200 : 500;
       response.json({
         ApplicationName: Constants.ApplicationName,
-        StatusCode: this.setupComplete && this.currentDatabase && this.currentDatabase.isDatabaseConnected? 200 : 500,
+        StatusCode: this.setupComplete ? 200 : 500,
         SetupComplete: this.setupComplete,
-        DatabaseConnected: this.currentDatabase ? this.currentDatabase.isDatabaseConnected : false,
       });
     });
   }
