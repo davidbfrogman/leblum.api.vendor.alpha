@@ -1,10 +1,10 @@
+// This import has to be the first thing, so that new relic can instrument everything.
+const newRelic = require('newrelic');
 import * as http from 'http';
 import * as debug from 'debug';
-
 import App from './application';
 import { Config } from './config/config';
 import log = require('winston');
-const newRelic = require('newrelic');
 
 debug('ts-express:server');
 
