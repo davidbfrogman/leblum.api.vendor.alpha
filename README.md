@@ -5,7 +5,7 @@
 Implementation of async - await methods in mongoose and express.
 
 - Code coverage with Istanbul
-- No need for MongoDB
+- No need for local MongoDB
 - Unit tests with Mockgoose
 - API documentation using Swagger
 
@@ -47,10 +47,16 @@ you can then monitor using
     $ pm2 monit
 ```
 
+At some point you might want to try running pm2 to increase performance.  At this point, doing it on a free heroku dyno is hurting more than it's helping.
+Change the Procfile to be this:
+```
+web: ./node_modules/.bin/pm2 start ecosystem.config.js && ./node_modules/.bin/pm2 logs all
+```
+
 load testing with artillery use the artillery.yml file.  This won't work without authentication
 ```
     artillery run artillery.yml 
-    
+
     // These ones won't actually work unless you pass in the auth token, but they're good to see how the config on command line works.
     artillery quick --duration 60 --rate 100 -n 20 http://localhost:8080/api/users
 

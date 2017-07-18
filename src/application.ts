@@ -9,7 +9,7 @@ import * as helmet from 'helmet';
 import { ObjectId } from 'bson';
 import { join } from 'path';
 import { json, urlencoded } from 'body-parser';
-import { mongoose } from './config/database';
+import { mongoose, Database } from './config/database';
 import { Constants } from './constants';
 import { Config } from './config/config';
 import { Router } from 'express';
@@ -25,6 +25,9 @@ class Application {
 
   // ref to Express instance
   public express: express.Application;
+  public currentDatabase: Database;
+
+  private setupComplete: boolean = false;
 
   // Run configuration methods on the Express instance.
   constructor() {
@@ -33,15 +36,42 @@ class Application {
     this.checkEnvironment();
 
     this.express = express();
-    this.configureLogging();
-    this.swagger();
-    this.configureJWT();
-    this.middleware();
-    this.routes();
-    this.handlers();
+    this.logging();      // Initialize logging 
+    this.healthcheck();  // Router for the healthcheck
+    this.connectDatabase();     // Setup database connection
+    this.secure();       // Turn on security measures
+    this.swagger();      // Serve up swagger, this is before authentication, as swagger is open
+    this.configureJWT(); // Sets up the way that json web tokens works
+    this.middleware();   // Setup the middleware
+    this.routes();       // Setup routers for all the controllers
+    this.handlers();     // Any additional handlers, home page, etc.
 
     this.express.listen(Config.active.get('port'));
     log.info(`Listening on http://localhost:${Config.active.get('port')}`);
+  }
+
+  private connectDatabase(){
+    this.currentDatabase = new Database();
+    this.currentDatabase.connect().then(connected =>{
+      this.setupComplete = connected as boolean;
+      log.info('Completed Setup, database now online');
+    });
+  }
+
+  private healthcheck() {
+    this.express.get('/healthcheck', (request: express.Request, response: express.Response) => {
+      response.statusCode = this.setupComplete ? 200 : 500;
+      response.json({
+        ApplicationName: Constants.ApplicationName,
+        StatusCode: this.setupComplete && this.currentDatabase && this.currentDatabase.isDatabaseConnected? 200 : 500,
+        SetupComplete: this.setupComplete,
+        DatabaseConnected: this.currentDatabase ? this.currentDatabase.isDatabaseConnected : false,
+      });
+    });
+  }
+
+  private secure(){
+    //app.use(helmet()); //Protecting the app from a lot of vulnerabilities turn on when you want to use TLS.
   }
 
   // Here we're going to make sure that the environment is setup.  
@@ -60,7 +90,7 @@ class Application {
 
   // We want to configure logging so that if we're outputting it to the console
   // it's nice and colorized, otherwise we remove that transport.
-  private configureLogging(): void {
+  private logging(): void {
     if (Config.active.get('isConsoleLoggingActive')) {
       log.remove(log.transports.Console);
       log.add(log.transports.Console, { colorize: true });
@@ -101,9 +131,9 @@ class Application {
     // The authentication endpoint is 'Open', and should be added to the router pipeline before the other routers
     this.express.use('/authenticate', new routers.AuthenticationRouter().getRouter());
     this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
-    this.express.use(Constants.AdminEndpoint, new routers.UserRouter().getRouter());
-    this.express.use(Constants.AdminEndpoint, new routers.RoleRouter().getRouter());
-    this.express.use(Constants.AdminEndpoint, new routers.PermissionRouter().getRouter());
+    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRouter().getRouter());
+    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.RoleRouter().getRouter());
+    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.PermissionRouter().getRouter());
 
     log.info('Instantiating Default Error Handler Route');
     this.express.use((error: Error & { status: number }, request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -116,7 +146,7 @@ class Application {
   private handlers(): void {
     this.express.get('/', (request: express.Request, response: express.Response) => {
       response.json({
-        name: 'leblum.api.vendor.alpha',
+        name: Constants.ApplicationName,
         DocumentationLocation:`${Config.active.get('publicURL')}:${Config.active.get('port')}/api-docs`,
         APILocation: `${Config.active.get('publicURL')}:${Config.active.get('port')}/api`,
         AuthenticationEndpoint: `${Config.active.get('publicURL')}:${Config.active.get('port')}/api/authenticate`,

@@ -17,12 +17,12 @@ export class RoleController extends BaseController<IRoleComposite> {
   }
 
   public preCreateHook(model: IRoleComposite): Promise<IRoleComposite>{
-    model.href = `${Constants.AdminEndpoint}${Constants.RolesEndpoint}/${model._id}`;
+    model.href = `${Constants.APIEndpoint}${Constants.RolesEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }
 
   public preUpdateHook(model: IRoleComposite): Promise<IRoleComposite>{
-    model.href = `${Constants.AdminEndpoint}${Constants.RolesEndpoint}/${model._id}`;
+    model.href = `${Constants.APIEndpoint}${Constants.RolesEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }
 }

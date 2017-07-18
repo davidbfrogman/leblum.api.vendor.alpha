@@ -14,12 +14,12 @@ export class PermissionController extends BaseController<IPermissionComposite> {
   }
 
   public preCreateHook(model: IPermissionComposite): Promise<IPermissionComposite>{
-    model.href = `${Constants.AdminEndpoint}${Constants.PermissionsEndpoint}/${model._id}`;
+    model.href = `${Constants.APIEndpoint}${Constants.PermissionsEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }
 
   public preUpdateHook(model: IPermissionComposite): Promise<IPermissionComposite>{
-    model.href = `${Constants.AdminEndpoint}${Constants.PermissionsEndpoint}/${model._id}`;
+    model.href = `${Constants.APIEndpoint}${Constants.PermissionsEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }
 }

@@ -1,17 +1,28 @@
 import mongoose = require('mongoose');
+import { ConnectionOptions } from 'mongoose';
 import { Config } from './config';
 import log = require('winston');
 
-let connectionOptions: mongoose.ConnectionOpenOptions = {
- useMongoClient: true,
-}
-mongoose.Promise = require('bluebird');
+export class Database{
 
-var mongoDB = mongoose.connect(Config.active.get('database.mongoConnectionString'), connectionOptions).then(() => {
-    log.info(`Connected To Mongo Database: ${mongoose.connection.db.databaseName}`);
-    })
-    .catch(function (err) {
-        log.info('error while trying to connect with mongodb', err);
-    });
+    public constructor(){
+
+    }
+
+    public connect(): Promise<boolean | void> {
+        const connectionOptions: ConnectionOptions = {
+            useMongoClient: true,
+        }
+        mongoose.Promise = require('bluebird');
+
+        return mongoose.connect(Config.active.get('database.mongoConnectionString'), connectionOptions).then(() => {
+            log.info(`Connected To Mongo Database: ${mongoose.connection.db.databaseName}`);
+            return true;
+        }).catch(function (err) {
+            log.info('error while trying to connect with mongodb', err);
+        });
+
+    }
+}
 
 export { mongoose };

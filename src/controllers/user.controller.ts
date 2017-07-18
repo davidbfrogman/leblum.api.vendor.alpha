@@ -31,12 +31,12 @@ export class UserController extends BaseController<IUserComposite> {
   }
 
   public preCreateHook(model: IUserComposite): Promise<IUserComposite>{
-    model.href = `${Constants.AdminEndpoint}${Constants.UsersEndpoint}/${model._id}`;
+    model.href = `${Constants.APIEndpoint}${Constants.UsersEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }
 
   public preUpdateHook(model: IUserComposite): Promise<IUserComposite>{
-    model.href = `${Constants.AdminEndpoint}${Constants.UsersEndpoint}/${model._id}`;
+    model.href = `${Constants.APIEndpoint}${Constants.UsersEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }
 }
