@@ -49,6 +49,9 @@ you can then monitor using
 
 load testing with artillery use the artillery.yml file.  This won't work without authentication
 ```
+    artillery run artillery.yml 
+    
+    // These ones won't actually work unless you pass in the auth token, but they're good to see how the config on command line works.
     artillery quick --duration 60 --rate 100 -n 20 http://localhost:8080/api/users
 
     artillery quick --duration 60 --rate 100 -n 20 https://leblum-vendor-api-alpha.herokuapp.com/api/users

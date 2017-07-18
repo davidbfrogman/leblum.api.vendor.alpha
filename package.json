@@ -21,7 +21,6 @@
     "node": ">= 5.4.1"
   },
   "dependencies": {
-    "@newrelic/native-metrics": "^2.1.1",
     "@types/bluebird": "^3.5.2",
     "@types/body-parser": "^1.16.4",
     "@types/bson": "^1.0.3",
