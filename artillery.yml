@@ -1,13 +1,13 @@
 config:
   target: 'https://leblum-vendor-api-alpha.herokuapp.com'
   phases:
+    # -
+    #   duration: 60
+    #   arrivalRate: 50
+    #   name: "Middle Phase"
     -
-      duration: 60
-      arrivalRate: 50
-      name: "Middle Phase"
-    -
-      duration: 300
-      arrivalRate: 100
+      duration: 120
+      arrivalRate: 20
       name: "High load phase"
   defaults:
     headers:
