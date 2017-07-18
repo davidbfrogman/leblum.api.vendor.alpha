@@ -4,7 +4,7 @@ import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Config } from '../config/config';
-import { ITokenPayload } from "../models/";
+import { ITokenPayload } from '../models/';
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');

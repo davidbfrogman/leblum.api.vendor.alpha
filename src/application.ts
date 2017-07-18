@@ -5,11 +5,11 @@ import * as morgan from 'morgan';
 import * as fs from 'fs';
 import * as helmet from 'helmet';
 
-import { ObjectId } from "bson";
+import { ObjectId } from 'bson';
 import { join } from 'path';
 import { json, urlencoded } from 'body-parser';
 import { mongoose } from './config/database';
-import { Constants } from "./constants";
+import { Constants } from './constants';
 import { Config } from './config/config';
 import { Router } from 'express';
 import { ApiErrorHandler } from './api-error-handler';
@@ -29,16 +29,32 @@ class Application {
   constructor() {
     log.info('Starting up Express Server.');
 
+    this.checkEnvironment();
+
     this.express = express();
     this.configureLogging();
+    this.swagger();
     this.configureJWT();
     this.middleware();
     this.routes();
     this.handlers();
-    this.swagger();
 
     this.express.listen(Config.active.get('port'));
     log.info(`Listening on http://localhost:${Config.active.get('port')}`);
+  }
+
+  // Here we're going to make sure that the environment is setup.  
+  // We're also going to double check that nothing goofy is going on.
+  private checkEnvironment(){
+    if(!process.env.NODE_ENV){
+      throw JSON.stringify({
+        error: 'You must have a node environment set: NODE_ENV',
+        message: 'You can set a node environemnt using set NODE_ENV development. Be sure to close and reopen any active console windows',
+      });
+    }
+    else{
+      log.info(`Current Environment set via environment variables (NODE_ENV):${process.env.NODE_ENV}`);
+    }
   }
 
   // We want to configure logging so that if we're outputting it to the console
@@ -81,7 +97,7 @@ class Application {
 
   private routes(): void {
     log.info('Initializing Routers');
-    // The authentication endpoint is "Open", and should be added to the router pipeline before the other routers
+    // The authentication endpoint is 'Open', and should be added to the router pipeline before the other routers
     this.express.use('/authenticate', new routers.AuthenticationRouter().getRouter());
     this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
     this.express.use(Constants.AdminEndpoint, new routers.UserRouter().getRouter());
@@ -100,9 +116,9 @@ class Application {
     this.express.get('/', (request: express.Request, response: express.Response) => {
       response.json({
         name: 'leblum.api.vendor.alpha',
-        DocumentationLocation: 'http://localhost:8080/api-docs',
-        APILocation: 'http://localhost:8080/api',
-        AuthenticationEndpoint: 'http://localhost:8080/api/authenticate',
+        DocumentationLocation:`${Config.active.get('publicURL')}:${Config.active.get('port')}/api-docs`,
+        APILocation: `${Config.active.get('publicURL')}:${Config.active.get('port')}/api`,
+        AuthenticationEndpoint: `${Config.active.get('publicURL')}:${Config.active.get('port')}/api/authenticate`,
       })
     });
 

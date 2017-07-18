@@ -1,9 +1,9 @@
 import { PermissionComposite, IPermissionComposite } from '../models/permission';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
-import { BaseController } from "./base/base.controller";
-import { Constants } from "../constants";
-var Promise = require("bluebird");
+import { BaseController } from './base/base.controller';
+import { Constants } from '../constants';
+var Promise = require('bluebird');
 
 export class PermissionController extends BaseController<IPermissionComposite> {
   public defaultPopulationArgument = null;

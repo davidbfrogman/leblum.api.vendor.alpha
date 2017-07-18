@@ -1,5 +1,5 @@
 import convict = require('convict');
-import { ConfigurationSchema } from "./configuration.schema";
+import { ConfigurationSchema } from './configuration.schema';
 
 export class Config{
   public static active = ConfigurationSchema.convictSchema;

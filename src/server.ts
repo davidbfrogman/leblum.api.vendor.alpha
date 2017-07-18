@@ -2,7 +2,9 @@ import * as http from 'http';
 import * as debug from 'debug';
 
 import App from './application';
-import { Config } from "./config/config";
+import { Config } from './config/config';
+import log = require('winston');
+const newRelic = require('newrelic');
 
 debug('ts-express:server');
 
@@ -15,11 +17,11 @@ function onError(error: NodeJS.ErrnoException): void {
   let bind = (typeof Config.active.get('port')=== 'string') ? 'Pipe ' + Config.active.get('port') : 'Port ' + Config.active.get('port');
   switch(error.code) {
     case 'EACCES':
-      console.error(`${bind} requires elevated privileges`);
+      log.error(`${bind} requires elevated privileges`);
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(`${bind} is already in use`);
+      log.error(`${bind} is already in use`);
       process.exit(1);
       break;
     default:
@@ -30,5 +32,5 @@ function onError(error: NodeJS.ErrnoException): void {
 function onListening(): void {
   let addr = server.address();
   let bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
-  debug(`Listening on ${bind}`);
+  log.info(`Listening on ${bind}`);
 }

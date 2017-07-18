@@ -1,9 +1,9 @@
 import { NextFunction, Request, RequestHandler, RequestParamHandler, Response, Router } from 'express';
 import { Document, DocumentQuery, Model, Schema } from 'mongoose';
 import * as log from 'winston';
-import { IValidationError, SearchCriteria } from "../../models/";
-import { ObjectId } from "bson";
-var Promise = require("bluebird");
+import { IValidationError, SearchCriteria } from '../../models/';
+import { ObjectId } from 'bson';
+var Promise = require('bluebird');
 
 export abstract class BaseController<IMongooseDocument extends Document>{
   public mongooseModelInstance: Model<IMongooseDocument>;
@@ -194,7 +194,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
      return query.then(() => {
         response.json({
           Collection: this.mongooseModelInstance.collection.name,
-          Message: "All items cleared from collection",
+          Message: 'All items cleared from collection',
           CountOfItemsRemoved: count
         });
 
@@ -209,8 +209,8 @@ export abstract class BaseController<IMongooseDocument extends Document>{
   public query(request: Request, response: Response, next: NextFunction): Promise<IMongooseDocument[] | void> {
     this.recursivlyConvertRegexes(request.body)
     let query = this.mongooseModelInstance.find(request.body);
-    //query.find({"fields": { "$elemMatch": { "name": "Invoice Name", "stringValue": { $regex: /ax/i, $options:"i" }  }}});
-    //let query = this.mongooseModelInstance.find({"description": { "$regex":  new RegExp('new','i') }}); 
+    //query.find({'fields': { '$elemMatch': { 'name': 'Invoice Name', 'stringValue': { $regex: /ax/i, $options:'i' }  }}});
+    //let query = this.mongooseModelInstance.find({'description': { '$regex':  new RegExp('new','i') }}); 
 
     query = this.defaultPopulationArgument ? query.populate(this.defaultPopulationArgument) : query;
 
@@ -226,7 +226,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
 
   public respondWithValidationErrors(request: Request, response: Response, next: NextFunction, validationErrors: IValidationError[]): void {
     response.status(412).json({
-      ValidationError: "Your Item did not pass validation",
+      ValidationError: 'Your Item did not pass validation',
       ValidationErrors: validationErrors
     });
   }
@@ -245,7 +245,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
         this.recursivlyConvertRegexes(element);
       }
       else {
-        if (currentKey === "$regex") {
+        if (currentKey === '$regex') {
           requestBody[currentKey] = new RegExp(requestBody[currentKey], 'i');
           return;
         }

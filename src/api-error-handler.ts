@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
 import log = require('winston');
-import { Config } from "./config/config";
+import { Config } from './config/config';
 
 export class ApiErrorHandler {
     public static HandleApiError(error: Error & { status: number }, request: Request, response: Response, next: NextFunction) {

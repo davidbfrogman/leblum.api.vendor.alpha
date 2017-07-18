@@ -1,6 +1,6 @@
-import mongoose = require("mongoose");
+import mongoose = require('mongoose');
+import { Config } from './config';
 import log = require('winston');
-import { Config } from "./config";
 
 let connectionOptions: mongoose.ConnectionOpenOptions = {
  useMongoClient: true,
@@ -11,7 +11,7 @@ var mongoDB = mongoose.connect(Config.active.get('database.mongoConnectionString
     log.info(`Connected To Mongo Database: ${mongoose.connection.db.databaseName}`);
     })
     .catch(function (err) {
-        console.log('error while trying to connect with mongodb', err);
+        log.info('error while trying to connect with mongodb', err);
     });
 
 export { mongoose };

@@ -2,10 +2,10 @@ import { IUserComposite, UserComposite, IUser } from '../models/user';
 import { Router, Request, Response, RequestParamHandler, NextFunction, RequestHandler } from 'express';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
-import { BaseController } from "./base/base.controller";
-import { Constants } from "../constants";
+import { BaseController } from './base/base.controller';
+import { Constants } from '../constants';
 var bcrypt = require('bcrypt');
-var Promise = require("bluebird");
+var Promise = require('bluebird');
 
 export class UserController extends BaseController<IUserComposite> {
   private saltRounds: Number = 10;

@@ -1,6 +1,6 @@
 import log = require('winston');
 import { Config } from './config'
-import { Constants } from "../constants";
+import { Constants } from '../constants';
 
 let jackrabbit = require('jackrabbit');
 let url = Config.active.get('ampq.ampqConnectionString');
