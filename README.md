@@ -38,6 +38,10 @@ if you want to run pm2
 ```
     $ pm2 start ecosystem.config.js
 ```
+or you can also run using the included script in the package.json.  To see how it runs in production look at the Procfile in the root:
+```
+npm run pm2Runner
+```
 you can then monitor using 
 ```
     $ pm2 monit

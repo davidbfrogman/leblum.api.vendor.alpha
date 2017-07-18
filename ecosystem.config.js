@@ -5,35 +5,15 @@ module.exports = {
    */
   apps: [
 
-    // Spawn 2 instances of the IDM Rest API
+    // Spawn 2 instances of the Leblum rest api
     {
-      name: 'rest-api',
+      name: 'leblum.vendor.api.aplha',
       script: './dist/server.js',
       instances: 2,
       max_memory_restart: '500M',
       merge_logs: false,
-      max_restarts: 5,
-      exec_mode : "cluster",
-      env: {
-        NODE_ENV: 'development',
-        source_map_support: true
-      },
-      env_staging: {
-        NODE_ENV: 'staging'
-      },
-      env_production: {
-        NODE_ENV: 'production'
-      }
-    },
-
-    // Spawn another 2 instances of the file processor
-    {
-      name: 'file-processor',
-      script: './dist/file-processor/file-processor.js',
-      instances: 2,
-      max_memory_restart: '500M',
-      max_restarts: 5,
-      merge_logs: false,
+      max_restarts: 3,
+      restart_delay: 3000,
       exec_mode : "cluster",
       env: {
         NODE_ENV: 'development',
