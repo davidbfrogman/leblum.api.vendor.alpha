@@ -14,7 +14,7 @@ import { Constants } from './constants';
 import { Config } from './config/config';
 import { Router } from 'express';
 import { ApiErrorHandler } from './api-error-handler';
-import * as routers from './routes';
+import * as routers from './routers';
 
 import methodOverride = require('method-override');
 import log = require('winston');
@@ -129,10 +129,10 @@ class Application {
     log.info('Initializing Routers');
     // The authentication endpoint is 'Open', and should be added to the router pipeline before the other routers
     this.express.use('/authenticate', new routers.AuthenticationRouter().getRouter());
-    this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
-    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRouter().getRouter());
+    //this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
+    //this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRouter().getRouter());
     this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.RoleRouter().getRouter());
-    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.PermissionRouter().getRouter());
+    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRepoRouter().getRouter());
 
     log.info('Instantiating Default Error Handler Route');
     this.express.use((error: Error & { status: number }, request: express.Request, response: express.Response, next: express.NextFunction): void => {

@@ -35,6 +35,4 @@ UserSchema.pre('save',function(next){
     next();
 });
 
-export interface IUserComposite extends IUser, Document {};
-
-export const UserComposite:Model<IUserComposite> = mongoose.model<IUserComposite>('user', UserSchema);
+export const User = mongoose.model<IUser>('user', UserSchema);

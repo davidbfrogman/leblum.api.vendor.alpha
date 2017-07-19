@@ -1,11 +1,11 @@
-import { IRoleComposite, RoleComposite } from '../models/role';
+import { Role, IRole } from '../models/role';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
 var Promise = require('bluebird');
 
-export class RoleController extends BaseController<IRoleComposite> {
+export class RoleController extends BaseController<IRole> {
   public defaultPopulationArgument =
   {
     path: 'permissions'
@@ -13,15 +13,15 @@ export class RoleController extends BaseController<IRoleComposite> {
 
   constructor() {
     super();
-    super.mongooseModelInstance = RoleComposite;
+    super.mongooseModelInstance = Role;
   }
 
-  public preCreateHook(model: IRoleComposite): Promise<IRoleComposite>{
+  public preCreateHook(model: IRole): Promise<IRole>{
     model.href = `${Constants.APIEndpoint}${Constants.RolesEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }
 
-  public preUpdateHook(model: IRoleComposite): Promise<IRoleComposite>{
+  public preUpdateHook(model: IRole): Promise<IRole>{
     model.href = `${Constants.APIEndpoint}${Constants.RolesEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }

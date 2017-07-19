@@ -5,20 +5,20 @@ import { IValidationError, SearchCriteria } from '../../models/';
 import { ObjectId } from 'bson';
 var Promise = require('bluebird');
 
-export abstract class BaseController<IMongooseDocument extends Document>{
-  public mongooseModelInstance: Model<IMongooseDocument>;
+export abstract class BaseController<IModel extends Document>{
+  public mongooseModelInstance: Model<IModel>;
   public searchCriteria: SearchCriteria;
   public abstract defaultPopulationArgument: object;
 
-  public isValid(model: IMongooseDocument): IValidationError[] {
+  public isValid(model: IModel): IValidationError[] {
     return null;
   };
 
-  public preCreateHook(model: IMongooseDocument): Promise<IMongooseDocument> {
+  public preCreateHook(model: IModel): Promise<IModel> {
     return Promise.resolve(model);
   }
 
-  public preUpdateHook(model: IMongooseDocument, request: Request): Promise<IMongooseDocument> {
+  public preUpdateHook(model: IModel, request: Request): Promise<IModel> {
     return Promise.resolve(model);
   }
 
@@ -26,7 +26,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
     return request && request.params ? request.params['id'] : null;
   }
 
-  public list(request: Request, response: Response, next: NextFunction): Promise<IMongooseDocument[] | void> {
+  public list(request: Request, response: Response, next: NextFunction): Promise<IModel[] | void> {
     this.searchCriteria = new SearchCriteria(request, next);
 
     let query = this.mongooseModelInstance.find()
@@ -36,7 +36,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
 
     query = this.defaultPopulationArgument ? query.populate(this.defaultPopulationArgument) : query;
 
-    return query.then((listedItems: IMongooseDocument[]) => {
+    return query.then((listedItems: IModel[]) => {
       response.json(listedItems);
 
       log.info(`Executed List Operation: ${this.mongooseModelInstance.collection.name}, Count: ${listedItems.length}`);
@@ -46,7 +46,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
     }).catch((error) => { next(error); });
   }
 
-  public single(request: Request, response: Response, next: NextFunction): Promise<IMongooseDocument | void> {
+  public single(request: Request, response: Response, next: NextFunction): Promise<IModel | void> {
 
     let query = this.mongooseModelInstance
       .findById(this.getId(request));
@@ -89,7 +89,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
       .catch((error) => { next(error); });
   }
 
-  public create(request: Request, response: Response, next: NextFunction): Promise<void | IMongooseDocument> {
+  public create(request: Request, response: Response, next: NextFunction): Promise<void | IModel> {
     return this.preCreateHook(new this.mongooseModelInstance(request.body)).then((itemAfterPreCreateHook) => {
       let validationErrors = this.isValid(itemAfterPreCreateHook);
 
@@ -99,7 +99,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
       }
 
       return itemAfterPreCreateHook.save()
-        .then((savedItem: IMongooseDocument) => {
+        .then((savedItem: IModel) => {
 
           response.status(201).json({ savedItem });
 
@@ -112,15 +112,15 @@ export abstract class BaseController<IMongooseDocument extends Document>{
   }
 
   //Update full / partial, is the difference between put and patch.
-  public updateFull(request: Request, response: Response, next: NextFunction): Promise<IMongooseDocument| void> {
+  public updateFull(request: Request, response: Response, next: NextFunction): Promise<IModel| void> {
     return this.update(request, response, next, true);
   }
 
-  public updatePartial(request: Request, response: Response, next: NextFunction): Promise<IMongooseDocument| void> {
+  public updatePartial(request: Request, response: Response, next: NextFunction): Promise<IModel| void> {
     return this.update(request, response, next, false);
   }
 
-  private update(request: Request, response: Response, next: NextFunction, isFull: boolean): Promise<IMongooseDocument | void> {
+  private update(request: Request, response: Response, next: NextFunction, isFull: boolean): Promise<IModel | void> {
     return this.preUpdateHook(new this.mongooseModelInstance(request.body), request)
       .then((itemAfterUpdateHook) => {
         let validationErrors = this.isValid(itemAfterUpdateHook);
@@ -143,7 +143,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
         return this.mongooseModelInstance
           // new:true means to return the newly updated object. (nothing to do with creating a new item)
           .findByIdAndUpdate(this.getId(request), updateBody, { new: true })
-          .then((updatedItem: IMongooseDocument) => {
+          .then((updatedItem: IModel) => {
             if (!updatedItem) {
               let error = new Error('Item Not Found');
               error['status'] = 404;
@@ -164,7 +164,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
       });
   }
 
-  public destroy(request: Request, response: Response, next: NextFunction): Promise<IMongooseDocument | void> {
+  public destroy(request: Request, response: Response, next: NextFunction): Promise<IModel | void> {
     let query = this.mongooseModelInstance
       .findByIdAndRemove(this.getId(request));
 
@@ -206,7 +206,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
       .catch((error) => { next(error); });
   }
 
-  public query(request: Request, response: Response, next: NextFunction): Promise<IMongooseDocument[] | void> {
+  public query(request: Request, response: Response, next: NextFunction): Promise<IModel[] | void> {
     this.recursivlyConvertRegexes(request.body)
     let query = this.mongooseModelInstance.find(request.body);
     //query.find({'fields': { '$elemMatch': { 'name': 'Invoice Name', 'stringValue': { $regex: /ax/i, $options:'i' }  }}});
@@ -214,7 +214,7 @@ export abstract class BaseController<IMongooseDocument extends Document>{
 
     query = this.defaultPopulationArgument ? query.populate(this.defaultPopulationArgument) : query;
 
-    return query.then((items: IMongooseDocument[]) => {
+    return query.then((items: IModel[]) => {
 
       response.json(items);
 

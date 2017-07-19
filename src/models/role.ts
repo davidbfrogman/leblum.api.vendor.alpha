@@ -24,6 +24,4 @@ RoleSchema.pre('save',function(next){
     next();
 });
 
-export interface IRoleComposite extends IRole, Document {};
-
-export const RoleComposite:Model<IRoleComposite> = mongoose.model<IRoleComposite>('role', RoleSchema);
+export const Role = mongoose.model<IRole>('role', RoleSchema);
