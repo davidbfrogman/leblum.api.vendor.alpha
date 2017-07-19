@@ -1,4 +1,5 @@
 const newRelic = require('newrelic');
+import "reflect-metadata";
 import * as express from 'express';
 import * as http from 'http';
 import * as compression from 'compression';
@@ -56,6 +57,9 @@ class Application {
       this.setupComplete = connected as boolean;
       log.info('Completed Setup, database now online');
     });
+    this.currentDatabase.connectMongoose().then((connected) => {
+      log.info('Mongo db connection successfull');
+    })
   }
 
   private healthcheck() {
