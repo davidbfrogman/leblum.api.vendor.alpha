@@ -5,7 +5,7 @@ import { IValidationError, SearchCriteria } from '../../models/';
 import { ObjectId } from 'bson';
 import { BaseRepo } from "../../repository/base/base.repository";
 
-export abstract class BaseRepoController<IModel extends Document, Repository extends BaseRepo<IModel>>{
+export abstract class BaseRepoController<Repository extends BaseRepo<IModel>, IModel extends Document>{
 
     public abstract repo: Repository;
     public abstract defaultPopulationArgument: object;
