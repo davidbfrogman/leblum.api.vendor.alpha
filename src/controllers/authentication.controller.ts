@@ -1,58 +1,55 @@
-import { IUserComposite, UserComposite } from '../models/user';
+import { User, IUser } from '../models';
 import { Router, Request, Response, RequestParamHandler, NextFunction, RequestHandler, Application } from 'express';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Config } from '../config/config';
 import { ITokenPayload } from '../models/';
+import { UserRepo } from "../repositories";
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-export class AuthenticationController extends BaseController<IUserComposite> {
+export class AuthenticationController extends BaseController<UserRepo, IUser> {
 
     private saltRounds: Number = 5;
     private tokenExpiration: string = '24h';
     public defaultPopulationArgument = null;
 
+    public repository: UserRepo = new UserRepo();
+
     constructor() {
         super();
-        super.mongooseModelInstance = UserComposite;
     }
 
-    public authenticate(request: Request, response: Response, next: NextFunction): Promise<any> {
-        return this.mongooseModelInstance.findOne({ username: request.body.username })
-            .select('+passwordHash')
-            .then((user) => {
-                bcrypt.compare(request.body.passwordHash, user.passwordHash, (err, res) => {
-                    if (err) {
-                        this.sendAuthFailure(response, 401, err);
-                    }
-                    if (res === false) {
-                        this.sendAuthFailure(response, 401, 'Password does not match');
-                    }
-                    else {
+    // At some point come clean this up to use the repo pattern correctly.
+    public async authenticate(request: Request, response: Response, next: NextFunction): Promise<any> {
+        try {
+            let user = await this.repository.mongooseModelInstance.findOne({ username: request.body.username })
+                .select('+passwordHash');
+            let passwordResult = await bcrypt.compare(request.body.passwordHash, user.passwordHash);
+            if (passwordResult === false) {
+                this.sendAuthFailure(response, 401, 'Password does not match');
+                return;
+            }
 
-                        let tokenPayload: ITokenPayload = {
-                            userId: user._id,
-                            roles: user.roles,
-                            expiration: this.tokenExpiration
-                        };
+            let tokenPayload: ITokenPayload = {
+                userId: user._id,
+                roles: user.roles,
+                expiration: this.tokenExpiration
+            };
 
-                        let token = jwt.sign(tokenPayload, Config.active.get('jwtSecretToken'), {
-                            expiresIn: tokenPayload.expiration
-                        });
+            let token = jwt.sign(tokenPayload, Config.active.get('jwtSecretToken'), {
+                expiresIn: tokenPayload.expiration
+            });
 
-                        response.json({
-                            authenticated: true,
-                            message: 'Successfully created jwt authentication token.',
-                            expiresIn: tokenPayload.expiration,
-                            token: token,
-                        });
-                    }
-                });
-            })
-            .catch((error) => { next(error); });
+            response.json({
+                authenticated: true,
+                message: 'Successfully created jwt authentication token.',
+                expiresIn: tokenPayload.expiration,
+                token: token,
+            });
+        } catch (err) { this.sendAuthFailure(response, 401, err); }
     }
 
     /*
@@ -72,7 +69,7 @@ export class AuthenticationController extends BaseController<IUserComposite> {
                     this.sendAuthFailure(response, 401, 'Failed to authenticate token. The timer *may* have expired on this token.');
                 } else {
                     //get the user from the database, and verify that they don't need to re login
-                    this.mongooseModelInstance.findById(decodedToken.userId).then((user) => {
+                    this.repository.mongooseModelInstance.findById(decodedToken.userId).then((user) => {
                         if (user.isTokenExpired) {
                             this.sendAuthFailure(response, 401, 'The user must login again to refresh their credentials');
                         }
@@ -84,7 +81,7 @@ export class AuthenticationController extends BaseController<IUserComposite> {
                                 expiration: this.tokenExpiration
                             };
 
-                            let newToken = jwt.sign(tokenPayload,Config.active.get('jwtSecretToken'), {
+                            let newToken = jwt.sign(tokenPayload, Config.active.get('jwtSecretToken'), {
                                 expiresIn: tokenPayload.expiration
                             });
 
@@ -106,24 +103,28 @@ export class AuthenticationController extends BaseController<IUserComposite> {
     }
 
     public authMiddleware(request: Request, response: Response, next: NextFunction): Response {
-        let token = request.body.token || request.query.token || request.headers['x-access-token'];
+        try {
+            let token = request.body.token || request.query.token || request.headers['x-access-token'];
+            if (token) {
+                // verifies secret and checks exp
+                jwt.verify(token, Config.active.get('jwtSecretToken'), (err, decoded)=>{
+                    if(err) { this.sendAuthFailure(response, 401, `Failed to authenticate token. The timer *may* have expired on this token. err: ${err}`); }
+                    else{
+                        request['decodedToken'] = decoded;
+                    }
+                });
+            } else {
+                //No token, send auth failure
+                return this.sendAuthFailure(response, 403, 'No Authentication Token Provided');
+            }
+            next();
+        } catch (err) {
+            this.sendAuthFailure(response, 401, "Authentication Failed");
+        }
+
 
         // decode token
-        if (token) {
-            // verifies secret and checks exp
-            jwt.verify(token, Config.active.get('jwtSecretToken'), (err, decodedToken) => {
-                if (err) {
-                    return this.sendAuthFailure(response, 401, 'Failed to authenticate token. The timer *may* have expired on this token.');
-                } else {
-                    // if everything is good, save to request for use in other routes
-                    request['decodedToken'] = decodedToken;
-                    next();
-                }
-            });
-        } else {
-            //No token, send auth failure
-            return this.sendAuthFailure(response, 403, 'No Authentication Token Provided');
-        }
+
     }
 
     public sendAuthFailure(response: Response, status: number, description: string): Response {

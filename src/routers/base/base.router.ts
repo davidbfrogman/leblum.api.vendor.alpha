@@ -4,8 +4,9 @@ import { RequestHandlerParams, NextFunction } from 'express-serve-static-core';
 import { IncomingMessage } from 'http';
 import { BaseController } from '../../controllers/base/base.controller';
 import { Schema, Model, Document } from 'mongoose';
+import { BaseRepo } from "../../repositories";
 
-export abstract class BaseRouter<TController extends BaseController<Document>>{
+export abstract class BaseRouter<TController extends BaseController<TRepo, IModel>, TRepo extends BaseRepo<IModel>, IModel extends Document>{
         public controller: TController;
         public abstract router: Router;
         public abstract resource: string;

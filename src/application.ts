@@ -14,7 +14,7 @@ import { Constants } from './constants';
 import { Config } from './config/config';
 import { Router } from 'express';
 import { ApiErrorHandler } from './api-error-handler';
-import * as routers from './routes';
+import * as routers from './routers';
 
 import methodOverride = require('method-override');
 import log = require('winston');
@@ -153,9 +153,7 @@ class Application {
     });
 
     this.express.get('*', function (req, res, next) {
-      var err = new Error(`No router was found for your request, page not found.  Requested Page: ${req.originalUrl}`);
-      err['status'] = 404;
-      next(err);
+      next({message: `No router was found for your request, page not found.  Requested Page: ${req.originalUrl}`, status: 404});
     });
   }
 

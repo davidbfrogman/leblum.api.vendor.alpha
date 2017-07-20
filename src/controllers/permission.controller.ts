@@ -1,24 +1,25 @@
-import { PermissionComposite, IPermissionComposite } from '../models/permission';
+import { Permission, IPermission } from '../models';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
-var Promise = require('bluebird');
+import { PermissionRepo } from '../repositories'
 
-export class PermissionController extends BaseController<IPermissionComposite> {
+export class PermissionController extends BaseController<PermissionRepo,IPermission> {
   public defaultPopulationArgument = null;
+
+  public repository: PermissionRepo = new PermissionRepo();
 
   constructor() {
     super();
-    super.mongooseModelInstance = PermissionComposite;
   }
 
-  public preCreateHook(model: IPermissionComposite): Promise<IPermissionComposite>{
+  public preCreateHook(model: IPermission): Promise<IPermission>{
     model.href = `${Constants.APIEndpoint}${Constants.PermissionsEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }
 
-  public preUpdateHook(model: IPermissionComposite): Promise<IPermissionComposite>{
+  public preUpdateHook(model: IPermission): Promise<IPermission>{
     model.href = `${Constants.APIEndpoint}${Constants.PermissionsEndpoint}/${model._id}`;
     return Promise.resolve(model);
   }

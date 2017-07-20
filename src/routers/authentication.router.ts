@@ -3,8 +3,10 @@ import { AuthenticationController } from '../controllers/authentication.controll
 import { Request, Response, RequestHandler, } from 'express';
 import { RequestHandlerParams, NextFunction } from 'express-serve-static-core';
 import { BaseRouter } from './base/base.router';
+import { UserRepo } from "../repositories";
+import { IUser } from "../models";
 
-export class AuthenticationRouter extends BaseRouter<AuthenticationController> {
+export class AuthenticationRouter extends BaseRouter<AuthenticationController, UserRepo, IUser> {
     public router: Router = Router();
     public authenticationController = new AuthenticationController();
     public resource: string = '';

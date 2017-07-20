@@ -35,6 +35,5 @@ UserSchema.pre('save',function(next){
     next();
 });
 
-export interface IUserComposite extends IUser, Document {};
-
-export const UserComposite:Model<IUserComposite> = mongoose.model<IUserComposite>('user', UserSchema);
+// This will compile the schema for the object, and place it in this Instance.
+export const User = mongoose.model<IUser>('user', UserSchema);
