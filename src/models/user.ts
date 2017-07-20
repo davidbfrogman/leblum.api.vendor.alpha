@@ -35,4 +35,5 @@ UserSchema.pre('save',function(next){
     next();
 });
 
+// This will compile the schema for the object, and place it in this Instance.
 export const User = mongoose.model<IUser>('user', UserSchema);
