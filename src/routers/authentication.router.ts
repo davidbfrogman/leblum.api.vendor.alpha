@@ -6,14 +6,13 @@ import { BaseRouter } from './base/base.router';
 import { UserRepo } from "../repositories";
 import { IUser } from "../models";
 
-export class AuthenticationRouter extends BaseRouter<AuthenticationController, UserRepo, IUser> {
+export class AuthenticationRouter extends BaseRouter {
     public router: Router = Router();
-    public authenticationController = new AuthenticationController();
+    public controller = new AuthenticationController();
     public resource: string = '';
 
     public constructor() {
         super();
-        super.controller = this.authenticationController;
     }
 
     public getRouter(): Router {

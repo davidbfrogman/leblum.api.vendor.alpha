@@ -1,10 +1,18 @@
 
 import { Model, Document } from "mongoose";
-import { SearchCriteria } from "../../models/index";
+import { SearchCriteria, IBaseModel } from "../../models/index";
 
-export class BaseRepo<IModel extends Document>{
+export abstract class BaseRepo<IModel extends Document>{
 
-    public mongooseModelInstance: Model<IModel>;
+    protected abstract mongooseModelInstance: Model<IModel>;
+
+    public createFromBody(body: object): IModel{
+        return new this.mongooseModelInstance(body);
+    }
+
+    public getCollectionName(): string{
+        return this.mongooseModelInstance.collection.name
+    }
 
     public async single(id: string, populationArgument?: any): Promise<IModel> {
         let query = this.mongooseModelInstance.findById(id);

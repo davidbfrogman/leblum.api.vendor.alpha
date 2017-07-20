@@ -5,14 +5,13 @@ import { Constants } from '../constants';
 import { UserRepo } from "../repositories";
 import { IUser } from "../models";
 
-export class UserRouter extends BaseRouter<UserController, UserRepo, IUser> {
+export class UserRouter extends BaseRouter {
     public router: Router = Router();
-    public userController = new UserController();
+    public controller = new UserController();
     public resource: string;
 
     public constructor(){
         super();
         this.resource = Constants.UsersEndpoint;
-        super.controller = this.userController;
     }
 }

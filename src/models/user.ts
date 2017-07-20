@@ -1,8 +1,9 @@
 import { mongoose } from '../config/database';
 import { Schema, Model, Document, model } from 'mongoose';
 import { IRole, RoleSchema } from './role';
+import { IBaseModel } from "./index";
 
-export interface IUser extends Document {
+export interface IUser extends IBaseModel {
     username: string;
     passwordHash: string;
     email: string;

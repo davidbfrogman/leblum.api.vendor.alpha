@@ -5,13 +5,13 @@ import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
 import { RoleRepo } from '../repositories'
 
-export class RoleController extends BaseController<RoleRepo,IRole> {
+export class RoleController extends BaseController{
   public defaultPopulationArgument =
   {
     path: 'permissions'
   }
 
-  public repository: RoleRepo = new RoleRepo();
+  protected repository: RoleRepo = new RoleRepo();
 
   constructor() {
     super();

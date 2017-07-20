@@ -5,10 +5,10 @@ import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
 import { PermissionRepo } from '../repositories'
 
-export class PermissionController extends BaseController<PermissionRepo,IPermission> {
+export class PermissionController extends BaseController {
   public defaultPopulationArgument = null;
 
-  public repository: PermissionRepo = new PermissionRepo();
+  protected repository: PermissionRepo = new PermissionRepo();
 
   constructor() {
     super();

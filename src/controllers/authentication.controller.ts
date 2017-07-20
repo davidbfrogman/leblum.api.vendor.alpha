@@ -10,13 +10,13 @@ import { UserRepo } from "../repositories";
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-export class AuthenticationController extends BaseController<UserRepo, IUser> {
+export class AuthenticationController extends BaseController {
 
     private saltRounds: Number = 5;
     private tokenExpiration: string = '24h';
     public defaultPopulationArgument = null;
 
-    public repository: UserRepo = new UserRepo();
+    protected repository: UserRepo = new UserRepo();
 
     constructor() {
         super();
@@ -25,8 +25,7 @@ export class AuthenticationController extends BaseController<UserRepo, IUser> {
     // At some point come clean this up to use the repo pattern correctly.
     public async authenticate(request: Request, response: Response, next: NextFunction): Promise<any> {
         try {
-            let user = await this.repository.mongooseModelInstance.findOne({ username: request.body.username })
-                .select('+passwordHash');
+            let user = await this.repository.getUserForPasswordCheck(request.body.username);
             let passwordResult = await bcrypt.compare(request.body.passwordHash, user.passwordHash);
             if (passwordResult === false) {
                 this.sendAuthFailure(response, 401, 'Password does not match');
@@ -68,8 +67,8 @@ export class AuthenticationController extends BaseController<UserRepo, IUser> {
                 if (err) {
                     this.sendAuthFailure(response, 401, 'Failed to authenticate token. The timer *may* have expired on this token.');
                 } else {
-                    //get the user from the database, and verify that they don't need to re login
-                    this.repository.mongooseModelInstance.findById(decodedToken.userId).then((user) => {
+                     //get the user from the database, and verify that they don't need to re login
+                    this.repository.single(decodedToken.userId).then( (user) => {
                         if (user.isTokenExpired) {
                             this.sendAuthFailure(response, 401, 'The user must login again to refresh their credentials');
                         }
@@ -121,10 +120,6 @@ export class AuthenticationController extends BaseController<UserRepo, IUser> {
         } catch (err) {
             this.sendAuthFailure(response, 401, "Authentication Failed");
         }
-
-
-        // decode token
-
     }
 
     public sendAuthFailure(response: Response, status: number, description: string): Response {

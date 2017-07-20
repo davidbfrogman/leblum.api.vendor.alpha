@@ -1,8 +1,9 @@
 import { mongoose } from '../config/database';
 import { Schema, Model, Document } from 'mongoose';
 import { IPermission, PermissionSchema } from './permission';
+import { IBaseModel } from "./index";
 
-export interface IRole extends Document {
+export interface IRole extends IBaseModel  {
     name: string;
     description: string;
     permissions: Array<IPermission>;

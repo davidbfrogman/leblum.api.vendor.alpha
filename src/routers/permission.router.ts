@@ -5,14 +5,13 @@ import { Constants } from '../constants';
 import { PermissionRepo } from "../repositories";
 import { IPermission } from "../models";
 
-export class PermissionRouter extends BaseRouter<PermissionController, PermissionRepo, IPermission> {
+export class PermissionRouter extends BaseRouter {
     public router: Router = Router();
-    public permissionController = new PermissionController();
+    public controller = new PermissionController();
     public resource: string;
 
     public constructor(){
         super();
         this.resource = Constants.PermissionsEndpoint;
-        super.controller = this.permissionController;
     }
 }

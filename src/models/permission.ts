@@ -1,7 +1,8 @@
 import { mongoose } from '../config/database';
 import { Schema, Model, Document } from 'mongoose';
+import { IBaseModel } from "./index";
 
-export interface IPermission extends Document {
+export interface IPermission extends IBaseModel {
     name: String;
     description: String;
     value: string;

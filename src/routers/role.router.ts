@@ -5,14 +5,13 @@ import { Constants } from '../constants';
 import { RoleRepo } from "../repositories";
 import { IRole } from "../models";
 
-export class RoleRouter extends BaseRouter<RoleController, RoleRepo, IRole> {
+export class RoleRouter extends BaseRouter {
     public router: Router = Router();
-    public roleController = new RoleController();
+    public controller = new RoleController();
     public resource: string;
 
     public constructor(){
         super();
         this.resource = Constants.RolesEndpoint;
-        super.controller = this.roleController;
     }
 }

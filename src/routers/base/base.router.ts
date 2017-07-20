@@ -6,8 +6,8 @@ import { BaseController } from '../../controllers/base/base.controller';
 import { Schema, Model, Document } from 'mongoose';
 import { BaseRepo } from "../../repositories";
 
-export abstract class BaseRouter<TController extends BaseController<TRepo, IModel>, TRepo extends BaseRepo<IModel>, IModel extends Document>{
-        public controller: TController;
+export abstract class BaseRouter{
+        public abstract controller: BaseController;
         public abstract router: Router;
         public abstract resource: string;
 

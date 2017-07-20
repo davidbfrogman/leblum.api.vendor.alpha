@@ -7,7 +7,7 @@ import { Constants } from '../constants';
 import { UserRepo } from "../repositories";
 var bcrypt = require('bcrypt');
 
-export class UserController extends BaseController<UserRepo, IUser> {
+export class UserController extends BaseController {
   private saltRounds: Number = 10;
   public defaultPopulationArgument =
   {
@@ -16,7 +16,7 @@ export class UserController extends BaseController<UserRepo, IUser> {
     populate: { path: 'permissions' }
   };
 
-  public repository: UserRepo = new UserRepo();
+  protected repository: UserRepo = new UserRepo();
 
   constructor() {
     super();

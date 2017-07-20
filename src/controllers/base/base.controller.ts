@@ -1,24 +1,24 @@
 import { NextFunction, Request, RequestHandler, RequestParamHandler, Response, Router } from 'express';
 import { Document, DocumentQuery, Model, Schema } from 'mongoose';
 import * as log from 'winston';
-import { IValidationError, SearchCriteria } from '../../models/';
+import { IValidationError, SearchCriteria, IBaseModel } from '../../models/';
 import { ObjectId } from 'bson';
 import { BaseRepo } from "../../repositories/";
 
-export abstract class BaseController<Repository extends BaseRepo<IModel>, IModel extends Document>{
+export abstract class BaseController{
 
-    public abstract repository: Repository;
+    protected abstract repository: BaseRepo<IBaseModel>;
     public abstract defaultPopulationArgument: object;
 
-    public async isValid(model: IModel): Promise<IValidationError[]> {
+    public async isValid(model: IBaseModel): Promise<IValidationError[]> {
         return null;
     };
 
-    public async preCreateHook(model: IModel): Promise<IModel> {
+    public async preCreateHook(model: IBaseModel): Promise<IBaseModel> {
         return Promise.resolve(model);
     }
 
-    public async preUpdateHook(model: IModel): Promise<IModel> {
+    public async preUpdateHook(model: IBaseModel): Promise<IBaseModel> {
         return Promise.resolve(model);
     }
 
@@ -41,13 +41,13 @@ export abstract class BaseController<Repository extends BaseRepo<IModel>, IModel
         });
     }
 
-    public async query(request: Request, response: Response, next: NextFunction): Promise<IModel[]> {
+    public async query(request: Request, response: Response, next: NextFunction): Promise<IBaseModel[]> {
         try {
-            let models: IModel[] = await this.repository.query(request.body, this.defaultPopulationArgument);
+            let models: IBaseModel[] = await this.repository.query(request.body, this.defaultPopulationArgument);
 
             response.json(models);
 
-            log.info(`Queried for: ${this.repository.mongooseModelInstance.collection.name}, Found: ${models.length}`);
+            log.info(`Queried for: ${this.repository.getCollectionName()}, Found: ${models.length}`);
             return models;
         } catch (err) { next(err); }
     }
@@ -58,16 +58,16 @@ export abstract class BaseController<Repository extends BaseRepo<IModel>, IModel
             await this.repository.clear(request.body);
 
             response.json({
-                Collection: this.repository.mongooseModelInstance.collection.name,
+                Collection: this.repository.getCollectionName(),
                 Message: 'All items cleared from collection',
                 CountOfItemsRemoved: count
             });
 
-            log.info(`Cleared the entire collection: ${this.repository.mongooseModelInstance.collection.name}`);
+            log.info(`Cleared the entire collection: ${this.repository.getCollectionName()}`);
         } catch (err) { next(err); }
     }
 
-    public async destroy(request: Request, response: Response, next: NextFunction): Promise<IModel> {
+    public async destroy(request: Request, response: Response, next: NextFunction): Promise<IBaseModel> {
         try {
             let deletedModel = await this.repository.destroy(this.getId(request));
 
@@ -77,24 +77,24 @@ export abstract class BaseController<Repository extends BaseRepo<IModel>, IModel
                 ItemRemovedId: deletedModel.id,
                 ItemRemoved: deletedModel,
             });
-            log.info(`Removed a: ${this.repository.mongooseModelInstance.collection.name}, ID: ${this.getId(request)}`);
+            log.info(`Removed a: ${this.repository.getCollectionName()}, ID: ${this.getId(request)}`);
 
             return deletedModel;
         } catch (err) { next(err); }
     }
 
     //Update full / partial, is the difference between put and patch.
-    public updateFull(request: Request, response: Response, next: NextFunction): Promise<IModel | void> {
+    public updateFull(request: Request, response: Response, next: NextFunction): Promise<IBaseModel | void> {
         return this.update(request, response, next, true);
     }
 
-    public updatePartial(request: Request, response: Response, next: NextFunction): Promise<IModel | void> {
+    public updatePartial(request: Request, response: Response, next: NextFunction): Promise<IBaseModel | void> {
         return this.update(request, response, next, false);
     }
 
-    private async update(request: Request, response: Response, next: NextFunction, isFull: boolean): Promise<IModel> {
+    private async update(request: Request, response: Response, next: NextFunction, isFull: boolean): Promise<IBaseModel> {
         try {
-            let model = await this.preUpdateHook(new this.repository.mongooseModelInstance(request.body));
+            let model = await this.preUpdateHook(this.repository.createFromBody(request.body));
 
             //I think validation will break on partial updates.  Something to look for.
             let validationErrors = await this.isValid(model);
@@ -119,14 +119,14 @@ export abstract class BaseController<Repository extends BaseRepo<IModel>, IModel
             if (!model) { throw { message: 'Item Not found', status: 404 }; }
 
             response.status(202).json(model);
-            log.info(`Updated a: ${this.repository.mongooseModelInstance.collection.name}, ID: ${model._id}`);
+            log.info(`Updated a: ${this.repository.getCollectionName()}, ID: ${model._id}`);
             return model;
         } catch (err) { next(err) }
     }
 
-    public async create(request: Request, response: Response, next: NextFunction): Promise<IModel> {
+    public async create(request: Request, response: Response, next: NextFunction): Promise<IBaseModel> {
         try {
-            let model = await this.preCreateHook(new this.repository.mongooseModelInstance(request.body));
+            let model = await this.preCreateHook(this.repository.createFromBody(request.body));
 
             let validationErrors = await this.isValid(model);
 
@@ -139,7 +139,7 @@ export abstract class BaseController<Repository extends BaseRepo<IModel>, IModel
 
             response.status(201).json({ model });
 
-            log.info(`Created New: ${this.repository.mongooseModelInstance.collection.name}, ID: ${model._id}`);
+            log.info(`Created New: ${this.repository.getCollectionName()}, ID: ${model._id}`);
 
             return model;
         } catch (err) { next(err) }
@@ -151,37 +151,37 @@ export abstract class BaseController<Repository extends BaseRepo<IModel>, IModel
             const count: number = await this.repository.count(searchCriteria);
 
             response.json({
-                CollectionName: this.repository.mongooseModelInstance.collection.name,
+                CollectionName: this.repository.getCollectionName(),
                 CollectionCount: count,
                 SearchCriteria: searchCriteria.criteria,
             });
-            log.info(`Executed Count Operation: ${this.repository.mongooseModelInstance.collection.name}, Count: ${count}`);
+            log.info(`Executed Count Operation: ${this.repository.getCollectionName()}, Count: ${count}`);
             return count;
         } catch (err) { next(err) }
 
     }
 
-    public async list(request: Request, response: Response, next: NextFunction): Promise<IModel[]> {
+    public async list(request: Request, response: Response, next: NextFunction): Promise<IBaseModel[]> {
         try {
-            let models: IModel[] = await this.repository.list(new SearchCriteria(request, next), this.defaultPopulationArgument);
+            let models: IBaseModel[] = await this.repository.list(new SearchCriteria(request, next), this.defaultPopulationArgument);
 
             response.json(models);
 
-            log.info(`Executed List Operation: ${this.repository.mongooseModelInstance.collection.name}, Count: ${models.length}`);
+            log.info(`Executed List Operation: ${this.repository.getCollectionName()}, Count: ${models.length}`);
 
             return models;
         } catch (err) { next(err) }
     }
 
-    public async single(request: Request, response: Response, next: NextFunction): Promise<IModel> {
+    public async single(request: Request, response: Response, next: NextFunction): Promise<IBaseModel> {
         try {
-            let model: IModel = await this.repository.single(this.getId(request), this.defaultPopulationArgument);
+            let model: IBaseModel = await this.repository.single(this.getId(request), this.defaultPopulationArgument);
             if (!model)
                 throw ({ message: 'Item Not Found', status: 404 });
 
             response.json(model);
 
-            log.info(`Executed Single Operation: ${this.repository.mongooseModelInstance.collection.name}, item._id: ${model._id}`);
+            log.info(`Executed Single Operation: ${this.repository.getCollectionName()}, item._id: ${model._id}`);
 
             return model;
         } catch (err) { next(err) }
