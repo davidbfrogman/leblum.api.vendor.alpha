@@ -1,4 +1,4 @@
-import { Permission, IPermission } from "../../models/index";
+import { IPermission } from "../../models/index";
 import { BaseRepository } from "../base/base.repository";
 import { Model } from "mongoose";
 import { IBaseRepository } from "../index";
