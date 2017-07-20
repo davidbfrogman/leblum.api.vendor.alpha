@@ -129,10 +129,10 @@ class Application {
     log.info('Initializing Routers');
     // The authentication endpoint is 'Open', and should be added to the router pipeline before the other routers
     this.express.use('/authenticate', new routers.AuthenticationRouter().getRouter());
-    //this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
-    //this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRouter().getRouter());
+    this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
+    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRouter().getRouter());
     this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.RoleRouter().getRouter());
-    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRepoRouter().getRouter());
+    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.PermissionRouter().getRouter());
 
     log.info('Instantiating Default Error Handler Route');
     this.express.use((error: Error & { status: number }, request: express.Request, response: express.Response, next: express.NextFunction): void => {
@@ -153,9 +153,7 @@ class Application {
     });
 
     this.express.get('*', function (req, res, next) {
-      var err = new Error(`No router was found for your request, page not found.  Requested Page: ${req.originalUrl}`);
-      err['status'] = 404;
-      next(err);
+      next({message: `No router was found for your request, page not found.  Requested Page: ${req.originalUrl}`, status: 404});
     });
   }
 

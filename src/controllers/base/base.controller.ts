@@ -3,253 +3,187 @@ import { Document, DocumentQuery, Model, Schema } from 'mongoose';
 import * as log from 'winston';
 import { IValidationError, SearchCriteria } from '../../models/';
 import { ObjectId } from 'bson';
-var Promise = require('bluebird');
+import { BaseRepo } from "../../repositories/";
 
-export abstract class BaseController<IModel extends Document>{
-  public mongooseModelInstance: Model<IModel>;
-  public searchCriteria: SearchCriteria;
-  public abstract defaultPopulationArgument: object;
+export abstract class BaseController<Repository extends BaseRepo<IModel>, IModel extends Document>{
 
-  public isValid(model: IModel): IValidationError[] {
-    return null;
-  };
+    public abstract repository: Repository;
+    public abstract defaultPopulationArgument: object;
 
-  public preCreateHook(model: IModel): Promise<IModel> {
-    return Promise.resolve(model);
-  }
-
-  public preUpdateHook(model: IModel, request: Request): Promise<IModel> {
-    return Promise.resolve(model);
-  }
-
-  public getId(request: Request): string {
-    return request && request.params ? request.params['id'] : null;
-  }
-
-  public list(request: Request, response: Response, next: NextFunction): Promise<IModel[] | void> {
-    this.searchCriteria = new SearchCriteria(request, next);
-
-    let query = this.mongooseModelInstance.find()
-      .skip(this.searchCriteria.skip)
-      .limit(this.searchCriteria.limit)
-      .sort(this.searchCriteria.sort);
-
-    query = this.defaultPopulationArgument ? query.populate(this.defaultPopulationArgument) : query;
-
-    return query.then((listedItems: IModel[]) => {
-      response.json(listedItems);
-
-      log.info(`Executed List Operation: ${this.mongooseModelInstance.collection.name}, Count: ${listedItems.length}`);
-
-      return listedItems;
-
-    }).catch((error) => { next(error); });
-  }
-
-  public single(request: Request, response: Response, next: NextFunction): Promise<IModel | void> {
-
-    let query = this.mongooseModelInstance
-      .findById(this.getId(request));
-
-    query = this.defaultPopulationArgument ? query.populate(this.defaultPopulationArgument) : query;
-
-    return query.then((item) => {
-      if (!item) { throw ({ message: 'Item Not Found', status: 404 }) }
-
-      response.json(item);
-      log.info(`Executed Single Operation: ${this.mongooseModelInstance.collection.name}, item._id: ${item._id}`);
-      return item;
-    })
-      .catch((error) => { next(error); });
-  }
-
-  public blank(request: Request, response: Response, next: NextFunction): void {
-    response.json(new this.mongooseModelInstance());
-  }
-
-  public utility(request: Request, response: Response, next: NextFunction): void {
-    response.json({});
-  }
-
-  public count(request: Request, response: Response, next: NextFunction): Promise<void> {
-    this.searchCriteria = new SearchCriteria(request, next);
-    return this.mongooseModelInstance
-      .find(this.searchCriteria.criteria)
-      .count()
-      .then((count: number) => {
-
-        response.json({
-          CollectionName: this.mongooseModelInstance.collection.name,
-          CollectionCount: count,
-          SearchCriteria: this.searchCriteria.criteria,
-        });
-
-        log.info(`Executed Count Operation: ${this.mongooseModelInstance.collection.name}, Count: ${count}`);
-      })
-      .catch((error) => { next(error); });
-  }
-
-  public create(request: Request, response: Response, next: NextFunction): Promise<void | IModel> {
-    return this.preCreateHook(new this.mongooseModelInstance(request.body)).then((itemAfterPreCreateHook) => {
-      let validationErrors = this.isValid(itemAfterPreCreateHook);
-
-      if (validationErrors && validationErrors.length > 0) {
-        this.respondWithValidationErrors(request, response, next, validationErrors);
+    public async isValid(model: IModel): Promise<IValidationError[]> {
         return null;
-      }
+    };
 
-      return itemAfterPreCreateHook.save()
-        .then((savedItem: IModel) => {
+    public async preCreateHook(model: IModel): Promise<IModel> {
+        return Promise.resolve(model);
+    }
 
-          response.status(201).json({ savedItem });
+    public async preUpdateHook(model: IModel): Promise<IModel> {
+        return Promise.resolve(model);
+    }
 
-          log.info(`Created New: ${this.mongooseModelInstance.collection.name}, ID: ${savedItem._id}`);
-          return savedItem;
-        })
-        .catch((error) => { next(error); });
-    })
-      .catch((error) => { next(error); });
-  }
+    protected getId(request: Request): string {
+        return request && request.params ? request.params['id'] : null;
+    }
 
-  //Update full / partial, is the difference between put and patch.
-  public updateFull(request: Request, response: Response, next: NextFunction): Promise<IModel| void> {
-    return this.update(request, response, next, true);
-  }
+    public blank(request: Request, response: Response, next: NextFunction): void {
+        response.json(this.repository.blank());
+    }
 
-  public updatePartial(request: Request, response: Response, next: NextFunction): Promise<IModel| void> {
-    return this.update(request, response, next, false);
-  }
+    public utility(request: Request, response: Response, next: NextFunction): void {
+        response.json({});
+    }
 
-  private update(request: Request, response: Response, next: NextFunction, isFull: boolean): Promise<IModel | void> {
-    return this.preUpdateHook(new this.mongooseModelInstance(request.body), request)
-      .then((itemAfterUpdateHook) => {
-        let validationErrors = this.isValid(itemAfterUpdateHook);
-        if (validationErrors && validationErrors.length > 0) {
-          this.respondWithValidationErrors(request, response, next, validationErrors);
-          return null;
-        }
+    public respondWithValidationErrors(request: Request, response: Response, next: NextFunction, validationErrors: IValidationError[]): void {
+        response.status(412).json({
+            ValidationError: 'Your Item did not pass validation',
+            ValidationErrors: validationErrors
+        });
+    }
 
-        // notice that we're using the request body in the set operation NOT the item after the pre update hook.
-        let updateBody: any;
-        if (isFull) {
-          // here we have a full document, so we don't need the set operation
-          updateBody = itemAfterUpdateHook;
-        }
-        else {
-          // here someone only passed in a few fields, so we use the set operation to only change the fields that were passed in.
-          updateBody = { $set: request.body }
-        }
+    public async query(request: Request, response: Response, next: NextFunction): Promise<IModel[]> {
+        try {
+            let models: IModel[] = await this.repository.query(request.body, this.defaultPopulationArgument);
 
-        return this.mongooseModelInstance
-          // new:true means to return the newly updated object. (nothing to do with creating a new item)
-          .findByIdAndUpdate(this.getId(request), updateBody, { new: true })
-          .then((updatedItem: IModel) => {
-            if (!updatedItem) {
-              let error = new Error('Item Not Found');
-              error['status'] = 404;
-              throw (error);
+            response.json(models);
+
+            log.info(`Queried for: ${this.repository.mongooseModelInstance.collection.name}, Found: ${models.length}`);
+            return models;
+        } catch (err) { next(err); }
+    }
+
+    public async clear(request: Request, response: Response, next: NextFunction): Promise<void> {
+        try {
+            let count: number = await this.repository.count(new SearchCriteria(request, next));
+            await this.repository.clear(request.body);
+
+            response.json({
+                Collection: this.repository.mongooseModelInstance.collection.name,
+                Message: 'All items cleared from collection',
+                CountOfItemsRemoved: count
+            });
+
+            log.info(`Cleared the entire collection: ${this.repository.mongooseModelInstance.collection.name}`);
+        } catch (err) { next(err); }
+    }
+
+    public async destroy(request: Request, response: Response, next: NextFunction): Promise<IModel> {
+        try {
+            let deletedModel = await this.repository.destroy(this.getId(request));
+
+            if (!deletedModel) { throw { message: "Item Not Found", status: 404 }; }
+
+            response.json({
+                ItemRemovedId: deletedModel.id,
+                ItemRemoved: deletedModel,
+            });
+            log.info(`Removed a: ${this.repository.mongooseModelInstance.collection.name}, ID: ${this.getId(request)}`);
+
+            return deletedModel;
+        } catch (err) { next(err); }
+    }
+
+    //Update full / partial, is the difference between put and patch.
+    public updateFull(request: Request, response: Response, next: NextFunction): Promise<IModel | void> {
+        return this.update(request, response, next, true);
+    }
+
+    public updatePartial(request: Request, response: Response, next: NextFunction): Promise<IModel | void> {
+        return this.update(request, response, next, false);
+    }
+
+    private async update(request: Request, response: Response, next: NextFunction, isFull: boolean): Promise<IModel> {
+        try {
+            let model = await this.preUpdateHook(new this.repository.mongooseModelInstance(request.body));
+
+            //I think validation will break on partial updates.  Something to look for.
+            let validationErrors = await this.isValid(model);
+
+            if (validationErrors && validationErrors.length > 0) {
+                this.respondWithValidationErrors(request, response, next, validationErrors);
+                return null;
             }
 
-            response.status(202).json(updatedItem);
+            // notice that we're using the request body in the set operation NOT the item after the pre update hook.
+            let updateBody: any;
+            if (isFull) {
+                // here we have a full document, so we don't need the set operation
+                updateBody = model;
+            }
+            else {
+                // here someone only passed in a few fields, so we use the set operation to only change the fields that were passed in.
+                updateBody = { $set: request.body }
+            }
 
-            log.info(`Updated a: ${this.mongooseModelInstance.collection.name}, ID: ${updatedItem._id}`);
-            return updatedItem;
-          })
-          .catch((error) => {
-            next(error);
-          });
-      })
-      .catch((error) => {
-        next(error);
-      });
-  }
+            model = await this.repository.update(updateBody, this.getId(request));
+            if (!model) { throw { message: 'Item Not found', status: 404 }; }
 
-  public destroy(request: Request, response: Response, next: NextFunction): Promise<IModel | void> {
-    let query = this.mongooseModelInstance
-      .findByIdAndRemove(this.getId(request));
-
-    query = this.defaultPopulationArgument ? query.populate(this.defaultPopulationArgument) : query;
-
-    return query.then((deletedItem) => {
-      if (!deletedItem) {
-        response.status(404);
-        throw (new Error('Item Not Found'));
-      }
-
-      response.json({
-        ItemRemovedId: this.getId(request),
-        ItemRemoved: deletedItem,
-      });
-
-      log.info(`Removed a: ${this.mongooseModelInstance.collection.name}, ID: ${this.getId(request)}`);
-      return deletedItem;
-    })
-      .catch((error) => { next(error); });
-  }
-
-  public clear(request: Request, response: Response, next: NextFunction): Promise<void> {
-    return this.mongooseModelInstance.count(request.body).exec().then((count) => {
-      let query = this.mongooseModelInstance.remove(request.body);
-
-     return query.then(() => {
-        response.json({
-          Collection: this.mongooseModelInstance.collection.name,
-          Message: 'All items cleared from collection',
-          CountOfItemsRemoved: count
-        });
-
-        log.info(`Cleared the entire collection: ${this.mongooseModelInstance.collection.name}`);
-      })
-        .catch((error) => { next(error); });
-
-    })
-      .catch((error) => { next(error); });
-  }
-
-  public query(request: Request, response: Response, next: NextFunction): Promise<IModel[] | void> {
-    this.recursivlyConvertRegexes(request.body)
-    let query = this.mongooseModelInstance.find(request.body);
-    //query.find({'fields': { '$elemMatch': { 'name': 'Invoice Name', 'stringValue': { $regex: /ax/i, $options:'i' }  }}});
-    //let query = this.mongooseModelInstance.find({'description': { '$regex':  new RegExp('new','i') }}); 
-
-    query = this.defaultPopulationArgument ? query.populate(this.defaultPopulationArgument) : query;
-
-    return query.then((items: IModel[]) => {
-
-      response.json(items);
-
-      log.info(`Queried for: ${this.mongooseModelInstance.collection.name}, Found: ${items.length}`);
-      return items;
-    })
-      .catch((error) => { next(error); });
-  }
-
-  public respondWithValidationErrors(request: Request, response: Response, next: NextFunction, validationErrors: IValidationError[]): void {
-    response.status(412).json({
-      ValidationError: 'Your Item did not pass validation',
-      ValidationErrors: validationErrors
-    });
-  }
-
-  public recursivlyConvertRegexes(requestBody: any) {
-    if (requestBody instanceof Array) {
-      for (var i = 0; i < requestBody.length; ++i) {
-        this.recursivlyConvertRegexes(requestBody[i])
-      }
+            response.status(202).json(model);
+            log.info(`Updated a: ${this.repository.mongooseModelInstance.collection.name}, ID: ${model._id}`);
+            return model;
+        } catch (err) { next(err) }
     }
-    let keysArray = Object.keys(requestBody);
-    for (var index = 0; index < keysArray.length; index++) {
-      var currentKey = keysArray[index];
-      var element = requestBody[currentKey];
-      if ((element instanceof Object || element instanceof Array) && Object.keys(element).length > 0) {
-        this.recursivlyConvertRegexes(element);
-      }
-      else {
-        if (currentKey === '$regex') {
-          requestBody[currentKey] = new RegExp(requestBody[currentKey], 'i');
-          return;
-        }
-      }
+
+    public async create(request: Request, response: Response, next: NextFunction): Promise<IModel> {
+        try {
+            let model = await this.preCreateHook(new this.repository.mongooseModelInstance(request.body));
+
+            let validationErrors = await this.isValid(model);
+
+            if (validationErrors && validationErrors.length > 0) {
+                this.respondWithValidationErrors(request, response, next, validationErrors);
+                return null;
+            }
+
+            model = await this.repository.create(model);
+
+            response.status(201).json({ model });
+
+            log.info(`Created New: ${this.repository.mongooseModelInstance.collection.name}, ID: ${model._id}`);
+
+            return model;
+        } catch (err) { next(err) }
     }
-  }
+
+    public async count(request: Request, response: Response, next: NextFunction): Promise<number> {
+        try {
+            const searchCriteria = new SearchCriteria(request, next);
+            const count: number = await this.repository.count(searchCriteria);
+
+            response.json({
+                CollectionName: this.repository.mongooseModelInstance.collection.name,
+                CollectionCount: count,
+                SearchCriteria: searchCriteria.criteria,
+            });
+            log.info(`Executed Count Operation: ${this.repository.mongooseModelInstance.collection.name}, Count: ${count}`);
+            return count;
+        } catch (err) { next(err) }
+
+    }
+
+    public async list(request: Request, response: Response, next: NextFunction): Promise<IModel[]> {
+        try {
+            let models: IModel[] = await this.repository.list(new SearchCriteria(request, next), this.defaultPopulationArgument);
+
+            response.json(models);
+
+            log.info(`Executed List Operation: ${this.repository.mongooseModelInstance.collection.name}, Count: ${models.length}`);
+
+            return models;
+        } catch (err) { next(err) }
+    }
+
+    public async single(request: Request, response: Response, next: NextFunction): Promise<IModel> {
+        try {
+            let model: IModel = await this.repository.single(this.getId(request), this.defaultPopulationArgument);
+            if (!model)
+                throw ({ message: 'Item Not Found', status: 404 });
+
+            response.json(model);
+
+            log.info(`Executed Single Operation: ${this.repository.mongooseModelInstance.collection.name}, item._id: ${model._id}`);
+
+            return model;
+        } catch (err) { next(err) }
+    }
 }

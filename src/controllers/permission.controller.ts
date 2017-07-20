@@ -1,16 +1,17 @@
-import { IPermission, Permission } from '../models/permission';
+import { Permission, IPermission } from '../models';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
-var Promise = require('bluebird');
+import { PermissionRepo } from '../repositories'
 
-export class PermissionController extends BaseController<IPermission> {
+export class PermissionController extends BaseController<PermissionRepo,IPermission> {
   public defaultPopulationArgument = null;
+
+  public repository: PermissionRepo = new PermissionRepo();
 
   constructor() {
     super();
-    super.mongooseModelInstance = Permission;
   }
 
   public preCreateHook(model: IPermission): Promise<IPermission>{

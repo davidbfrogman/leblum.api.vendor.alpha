@@ -1,19 +1,20 @@
-import { Role, IRole } from '../models/role';
+import { Role, IRole } from '../models';
 import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
-var Promise = require('bluebird');
+import { RoleRepo } from '../repositories'
 
-export class RoleController extends BaseController<IRole> {
+export class RoleController extends BaseController<RoleRepo,IRole> {
   public defaultPopulationArgument =
   {
     path: 'permissions'
   }
 
+  public repository: RoleRepo = new RoleRepo();
+
   constructor() {
     super();
-    super.mongooseModelInstance = Role;
   }
 
   public preCreateHook(model: IRole): Promise<IRole>{
