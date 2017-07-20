@@ -9,7 +9,6 @@ export class BaseRepo<IModel extends Document>{
         let query = this.mongooseModelInstance.findById(id);
 
         query = populationArgument ? query.populate(populationArgument) : query;
-        throw( {mongo: "This is a mongo error"});
         return await query;
     }
 }
