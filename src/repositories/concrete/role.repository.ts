@@ -1,5 +1,7 @@
 import { Role, IRole } from "../../models/index";
-import { IBaseRepository, BaseRepository } from "../index";
+import {BaseRepository} from '../base/base.repository';
+import {IBaseRepository} from '../base/base.repository.interface';
+
 import { Model } from "mongoose";
 import { IRoleRepository } from "../index";
 

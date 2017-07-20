@@ -1,8 +1,8 @@
 import { User, IUser } from "../../models/index";
-import { BaseRepository } from "../base/base.repository";
 import { Model } from "mongoose";
-import {  } from "./user.repository.interface";
-import { IBaseRepository, IUserRepository } from "../index";
+import {BaseRepository} from '../base/base.repository';
+import {IBaseRepository} from '../base/base.repository.interface';
+import {IUserRepository} from '../interfaces/user.repository.interface';
 
 export class UserRepository extends BaseRepository<IUser> implements IUserRepository, IBaseRepository<IUser> {
     protected mongooseModelInstance: Model<IUser> = User;
