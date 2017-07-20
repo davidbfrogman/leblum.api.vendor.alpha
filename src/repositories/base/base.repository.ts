@@ -1,8 +1,9 @@
 
 import { Model, Document } from "mongoose";
 import { SearchCriteria, IBaseModel } from "../../models/index";
+import { IBaseRepository } from "./base.repository.interface";
 
-export abstract class BaseRepo<IModel extends Document>{
+export abstract class BaseRepository<IModel extends Document> implements IBaseRepository<IModel>{
 
     protected abstract mongooseModelInstance: Model<IModel>;
 

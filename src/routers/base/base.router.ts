@@ -4,7 +4,7 @@ import { RequestHandlerParams, NextFunction } from 'express-serve-static-core';
 import { IncomingMessage } from 'http';
 import { BaseController } from '../../controllers/base/base.controller';
 import { Schema, Model, Document } from 'mongoose';
-import { BaseRepo } from "../../repositories";
+import { BaseRepository } from "../../repositories";
 
 export abstract class BaseRouter{
         public abstract controller: BaseController;

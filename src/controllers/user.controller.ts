@@ -4,7 +4,7 @@ import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
-import { UserRepo } from "../repositories";
+import { IUserRepository, UserRepository } from "../repositories";
 var bcrypt = require('bcrypt');
 
 export class UserController extends BaseController {
@@ -16,7 +16,7 @@ export class UserController extends BaseController {
     populate: { path: 'permissions' }
   };
 
-  protected repository: UserRepo = new UserRepo();
+  protected repository: IUserRepository = new UserRepository();
 
   constructor() {
     super();

@@ -1,8 +1,10 @@
-import { User, IUser } from "../models/index";
-import { BaseRepo } from "./base/base.repository";
+import { User, IUser } from "../../models/index";
+import { BaseRepository } from "../base/base.repository";
 import { Model } from "mongoose";
+import {  } from "./user.repository.interface";
+import { IBaseRepository, IUserRepository } from "../index";
 
-export class UserRepo extends BaseRepo<IUser>{
+export class UserRepository extends BaseRepository<IUser> implements IUserRepository, IBaseRepository<IUser> {
     protected mongooseModelInstance: Model<IUser> = User;
     public constructor(){
         super();

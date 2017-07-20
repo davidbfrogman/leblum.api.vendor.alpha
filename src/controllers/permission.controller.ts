@@ -3,12 +3,12 @@ import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
-import { PermissionRepo } from '../repositories'
+import { PermissionRepository, IPermissionRepository } from '../repositories'
 
 export class PermissionController extends BaseController {
   public defaultPopulationArgument = null;
 
-  protected repository: PermissionRepo = new PermissionRepo();
+  protected repository: IPermissionRepository = new PermissionRepository();
 
   constructor() {
     super();

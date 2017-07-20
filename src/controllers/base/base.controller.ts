@@ -3,11 +3,11 @@ import { Document, DocumentQuery, Model, Schema } from 'mongoose';
 import * as log from 'winston';
 import { IValidationError, SearchCriteria, IBaseModel } from '../../models/';
 import { ObjectId } from 'bson';
-import { BaseRepo } from "../../repositories/";
+import { BaseRepository, IBaseRepository } from "../../repositories/";
 
 export abstract class BaseController{
 
-    protected abstract repository: BaseRepo<IBaseModel>;
+    protected abstract repository: IBaseRepository<IBaseModel>;
     public abstract defaultPopulationArgument: object;
 
     public async isValid(model: IBaseModel): Promise<IValidationError[]> {

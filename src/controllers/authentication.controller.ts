@@ -5,7 +5,8 @@ import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Config } from '../config/config';
 import { ITokenPayload } from '../models/';
-import { UserRepo } from "../repositories";
+import { UserRepository } from "../repositories";
+import { IUserRepository } from "../repositories/interfaces/user.repository.interface";
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -16,7 +17,7 @@ export class AuthenticationController extends BaseController {
     private tokenExpiration: string = '24h';
     public defaultPopulationArgument = null;
 
-    protected repository: UserRepo = new UserRepo();
+    protected repository: IUserRepository = new UserRepository();
 
     constructor() {
         super();

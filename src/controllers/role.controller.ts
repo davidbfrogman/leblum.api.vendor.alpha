@@ -3,7 +3,7 @@ import mongoose = require('mongoose');
 import { Schema, Model, Document } from 'mongoose';
 import { BaseController } from './base/base.controller';
 import { Constants } from '../constants';
-import { RoleRepo } from '../repositories'
+import { RoleRepository, IRoleRepository } from '../repositories'
 
 export class RoleController extends BaseController{
   public defaultPopulationArgument =
@@ -11,7 +11,7 @@ export class RoleController extends BaseController{
     path: 'permissions'
   }
 
-  protected repository: RoleRepo = new RoleRepo();
+  protected repository: IRoleRepository = new RoleRepository();
 
   constructor() {
     super();
