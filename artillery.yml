@@ -11,10 +11,12 @@ config:
       name: "High load phase"
   defaults:
     headers:
-      x-access-token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1OGY4YzhjYWVkZjcyOTJiZTgwYTkwZTQiLCJyb2xlcyI6WyI1OGY4YzdhZGVkZjcyOTJiZTgwYTkwZTEiXSwiZXhwaXJhdGlvbiI6IjI0aCIsImlhdCI6MTUwMDM2NTYzMywiZXhwIjoxNTAwNDUyMDMzfQ.3t4ekBjeVq4TXPbhUgrur2bfQony3mZZ5rDCrNeikdU'
+      x-access-token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1OGY4YzhjYWVkZjcyOTJiZTgwYTkwZTQiLCJyb2xlcyI6WyI1OGY4YzdhZGVkZjcyOTJiZTgwYTkwZTEiXSwiZXhwaXJhdGlvbiI6IjI0aCIsImlhdCI6MTUwMDU0Nzk5MSwiZXhwIjoxNTAwNjM0MzkxfQ.sq-Sf2a9AYPMYkUfwQBCQMRki_Y3zr1S-uR-nMJCDi8'
 scenarios:
   - flow:
     - get:
-        url: "/api/admin/users"
+        url: "/api/v1/users"
     - get:
-        url: "/api/admin/permissions"
+        url: "/api/v1/permissions"
+    - get:
+        url: "/api/v1/roles"
