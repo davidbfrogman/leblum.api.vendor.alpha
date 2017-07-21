@@ -30,7 +30,7 @@ async function requestWithRetry (url) {
 export class Database{
 
     public connect(): Promise<boolean | void> {
-        const connectionOptions: ConnectionOptions = {
+        const connectionOptions: any = {
             useMongoClient: true,
         }
         mongoose.Promise = require('bluebird');
