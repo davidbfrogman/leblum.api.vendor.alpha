@@ -16,6 +16,7 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
     }
 
     public async updatePassword(id: string, hashedPassword: string): Promise<IUser>{
+        let user: IUser = await this.mongooseModelInstance.findById(id).select('+passwordHash');
         user.passwordHash = hashedPassword;
         return await user.save();
     }
