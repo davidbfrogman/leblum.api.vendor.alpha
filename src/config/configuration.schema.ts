@@ -4,7 +4,7 @@ export class ConfigurationSchema{
 public static convictSchema: convict.Config = convict({
     env: {
       doc: 'The applicaton environment.',
-      format: ['production', 'development', 'test', 'qa', 'staging'],
+      format: ['production', 'development', 'ci', 'test', 'staging'],
       default: 'development',
       env: 'NODE_ENV'
     },
@@ -31,7 +31,8 @@ public static convictSchema: convict.Config = convict({
         doc: 'Mongo Connection string',
         format: '*',
         default: 'mongodb://dbrown:password1@ds161162.mlab.com:61162/leblum-vendor-api',
-        env: 'MONGO_CONNECTION_STRING'
+        env: 'MONGO_CONNECTION_STRING',
+        sensitive: true,
       },
     },
     ampq:{
@@ -39,7 +40,8 @@ public static convictSchema: convict.Config = convict({
         doc: 'AMPQ Connection string for rabbit',
         format: '*',
         default: 'amqp://wkaxkarj:NAsD1ISNCESHMmVlK9Mch6IcBjapIBYn@puma.rmq.cloudamqp.com/wkaxkarj',
-        env: 'AMPQ_CONNECTION_STRING'
+        env: 'AMPQ_CONNECTION_STRING',
+        sensitive: true
       }
     },
     jwtSecretToken: {
