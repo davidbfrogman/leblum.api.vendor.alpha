@@ -59,7 +59,7 @@ export abstract class BaseRepository<IModel extends Document> implements IBaseRe
     }
 
     public async query(searchBody: any, populationArgument: any): Promise<IModel[]>{
-        searchBody = this.recursivlyConvertRegexes(searchBody);
+        this.recursivlyConvertRegexes(searchBody);
 
         let query = this.mongooseModelInstance.find(searchBody);
         query = populationArgument ? query.populate(populationArgument) : query;

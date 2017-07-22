@@ -1,4 +1,4 @@
-// process.env.NODE_ENV = 'unitTest';
+// process.env.NODE_ENV = 'integration';
 // import { DocumentTemplateComposite, IDocumentTemplateComposite } from '../../models/document-template';
 // import * as chai from 'chai';
 // const expect = chai.expect;

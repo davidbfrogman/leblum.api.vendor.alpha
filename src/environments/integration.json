@@ -1,12 +1,13 @@
 {
+    "publicURL": "http://localhost",
     "name": "leblum.vendor.api",
     "database": {
-      "mongoConnectionString": "mongodb://dbrown:password1@ds161162.mlab.com:61162/leblum-vendor-api"
+      "mongoConnectionString": "mongodb://root:leblum1234@ds111103.mlab.com:11103/leblum-vendor-api-integration"
     },
     "ampq":{
         "ampqConnectionString": "amqp://wkaxkarj:NAsD1ISNCESHMmVlK9Mch6IcBjapIBYn@puma.rmq.cloudamqp.com/wkaxkarj"
     },
-    "jwtSecretToken": "asdf97a9s8d7baodfbhoda8f7g9adf8asj",
+    "jwtSecretToken": "leblum1234",
     "returnCallStackOnError": true,
     "isConsoleLoggingActive": true
 }

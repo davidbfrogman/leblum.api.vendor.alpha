@@ -115,7 +115,7 @@ export abstract class BaseController{
                 updateBody = { $set: request.body }
             }
 
-            model = await this.repository.update(updateBody, this.getId(request));
+            model = await this.repository.update(this.getId(request), updateBody);
             if (!model) { throw { message: 'Item Not found', status: 404 }; }
 
             response.status(202).json(model);

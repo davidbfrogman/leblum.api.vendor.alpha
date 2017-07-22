@@ -30,7 +30,7 @@ public static convictSchema: convict.Config = convict({
       mongoConnectionString: {
         doc: 'Mongo Connection string',
         format: '*',
-        default: 'mongodb://dbrown:password1@ds161162.mlab.com:61162/leblum-vendor-api',
+        default: 'mongodb://root:leblum1234@ds111123.mlab.com:11123/leblum-vendor-api-development',
         env: 'MONGO_CONNECTION_STRING',
         sensitive: true,
       },
