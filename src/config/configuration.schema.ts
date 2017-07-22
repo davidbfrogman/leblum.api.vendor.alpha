@@ -4,7 +4,7 @@ export class ConfigurationSchema{
 public static convictSchema: convict.Config = convict({
     env: {
       doc: 'The applicaton environment.',
-      format: ['production', 'development', 'ci', 'test', 'staging'],
+      format: ['production', 'development', 'ci', 'test', 'staging', 'integration'],
       default: 'development',
       env: 'NODE_ENV'
     },
@@ -30,7 +30,7 @@ public static convictSchema: convict.Config = convict({
       mongoConnectionString: {
         doc: 'Mongo Connection string',
         format: '*',
-        default: 'mongodb://root:leblum1234@ds111123.mlab.com:11123/leblum-vendor-api-development',
+        default: '',
         env: 'MONGO_CONNECTION_STRING',
         sensitive: true,
       },

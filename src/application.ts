@@ -129,7 +129,7 @@ class Application {
     log.info('Initializing Routers');
     // The authentication endpoint is 'Open', and should be added to the router pipeline before the other routers
     this.express.use('/authenticate', new routers.AuthenticationRouter().getRouter());
-    this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
+    //this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
     this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRouter().getRouter());
     this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.RoleRouter().getRouter());
     this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.PermissionRouter().getRouter());

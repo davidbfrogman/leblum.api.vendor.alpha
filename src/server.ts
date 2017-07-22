@@ -14,8 +14,8 @@ server.on('listening', onListening);
 
 function onError(error: NodeJS.ErrnoException): void {
   if (error.syscall !== 'listen') throw error;
-  let bind = (typeof Config.active.get('port')=== 'string') ? 'Pipe ' + Config.active.get('port') : 'Port ' + Config.active.get('port');
-  switch(error.code) {
+  let bind = (typeof Config.active.get('port') === 'string') ? 'Pipe ' + Config.active.get('port') : 'Port ' + Config.active.get('port');
+  switch (error.code) {
     case 'EACCES':
       log.error(`${bind} requires elevated privileges`);
       process.exit(1);
@@ -34,3 +34,6 @@ function onListening(): void {
   let bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
   log.info(`Listening on ${bind}`);
 }
+
+// The application is exported so that we can use it in testing framework.
+export { App }
