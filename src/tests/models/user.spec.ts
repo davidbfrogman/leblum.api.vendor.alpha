@@ -28,10 +28,10 @@ describe('Users', () => {
 
      // Testing the list method.
         it('it should list all the users', async () => {
-            let sres = await api.get(`${Constants.APIEndpoint}${Constants.APIVersion1}/${Constants.UsersEndpoint}`).set("x-access-token", AuthToken);
-            expect(sres.status === 200);
-            expect(sres.body).to.be.an('array');
-            expect(sres.body.length).to.be.equal(1); // It's going to be 1, because we have our seed user that we're using for authentication
+            let response = await api.get(`${Constants.APIEndpoint}${Constants.APIVersion1}/${Constants.UsersEndpoint}`).set("x-access-token", AuthToken);
+            expect(response.status === 200);
+            expect(response.body).to.be.an('array');
+            expect(response.body.length).to.be.equal(1); // It's going to be 1, because we have our seed user that we're using for authentication
         });
 
         it('it should create a user', async () => {
