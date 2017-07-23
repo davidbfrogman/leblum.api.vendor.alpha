@@ -5,7 +5,7 @@ import { IValidationError, SearchCriteria, IBaseModel } from '../../models/';
 import { ObjectId } from 'bson';
 import { BaseRepository, IBaseRepository } from "../../repositories/";
 
-export abstract class BaseController{
+export abstract class BaseController {
 
     protected abstract repository: IBaseRepository<IBaseModel>;
     public abstract defaultPopulationArgument: object;
@@ -15,13 +15,13 @@ export abstract class BaseController{
     };
 
     public async preCreateHook(model: IBaseModel): Promise<IBaseModel> {
-        return Promise.resolve(model);
+        return model;
     }
 
     public async preUpdateHook(model: IBaseModel): Promise<IBaseModel> {
-        return Promise.resolve(model);
+        return model;
     }
-
+    
     protected getId(request: Request): string {
         return request && request.params ? request.params['id'] : null;
     }
@@ -118,7 +118,7 @@ export abstract class BaseController{
             model = await this.repository.update(this.getId(request), updateBody);
             if (!model) { throw { message: 'Item Not found', status: 404 }; }
 
-            response.status(202).json(model);
+            response.status(202).json({ model });
             log.info(`Updated a: ${this.repository.getCollectionName()}, ID: ${model._id}`);
             return model;
         } catch (err) { next(err) }

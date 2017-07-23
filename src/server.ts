@@ -8,7 +8,7 @@ import log = require('winston');
 
 debug('ts-express:server');
 
-const server = http.createServer(App);
+const server = http.createServer(App.express);
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -29,6 +29,26 @@ function onError(error: NodeJS.ErrnoException): void {
   }
 }
 
+var gracefulShutdown = function() {
+  console.log("Received kill signal, shutting down gracefully.");
+  server.close(function() {
+    console.log("Closed out remaining connections.");
+    process.exit()
+  });
+  
+   // if after 
+   setTimeout(function() {
+       console.error("Could not close connections in time, forcefully shutting down");
+       process.exit()
+  }, 10*1000);
+}
+
+// listen for TERM signal .e.g. kill 
+process.on ('SIGTERM', gracefulShutdown);
+
+// listen for INT signal e.g. Ctrl-C
+process.on ('SIGINT', gracefulShutdown);
+
 function onListening(): void {
   let addr = server.address();
   let bind = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
@@ -36,4 +56,4 @@ function onListening(): void {
 }
 
 // The application is exported so that we can use it in testing framework.
-export { App }
+export { App, server }

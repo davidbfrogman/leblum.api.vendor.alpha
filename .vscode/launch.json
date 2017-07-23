@@ -57,10 +57,9 @@
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "stopOnEntry": false,
             "args": [
-                "dist/**/*.spec.js",
-                "--no-timeouts",
-                "--require ts-node/register",
-                "--watch-extensions ts"
+                "--opts",
+                "mocha.config",
+                "--watch"
             ],
             "runtimeExecutable": null,
             "env": {

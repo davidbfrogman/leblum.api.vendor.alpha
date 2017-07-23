@@ -4,11 +4,13 @@ import { IRole, RoleSchema } from './role';
 import { IBaseModel } from "./index";
 
 export interface IUser extends IBaseModel {
+    firstName: string,
+    lastName: string,
     username: string;
     passwordHash: string;
     email: string;
-    roles: Array<IRole>;
-    href: string;
+    roles?: Array<IRole>;
+    href?: string;
     // This will be set to true whenever a user changes their password / or we require them to login again
     // This is used by the authentication controller to revoke the renewal of a token.  
     isTokenExpired: boolean; 
@@ -17,16 +19,18 @@ export interface IUser extends IBaseModel {
 }
 
 const UserSchema = new Schema({
+    firstName: {type: String, required: true},
+    lastName: {type: String, required: true},
     username: {
         type: String, 
         unique:true,
         trim:true,
         required:true
     },
+    email: {type:String, unique:true},
     passwordHash: {type: String, required: true, select: false},
     isTokenExpired: {type : Boolean, required: true, default: true},
     href: {type:String},
-    email: {type:String, unique:true},
     roles: [{ type : Schema.Types.ObjectId, ref: 'role' }]
 },{timestamps:true});
 

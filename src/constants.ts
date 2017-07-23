@@ -9,4 +9,5 @@ export const Constants = {
     UsersEndpoint: '/users',
     LEBLUM_API_Q_BACKPLANE: 'leblum-api-q-backplane',
     ApplicationName: "leblum.api.vendor.alpha",
+    SaltRounds: 10,
 }

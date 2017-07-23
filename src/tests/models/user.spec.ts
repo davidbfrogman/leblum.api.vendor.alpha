@@ -1,37 +1,84 @@
 //During the test the env variable is set to test
-process.env.NODE_ENV = 'integration';
 import { Database } from '../../config/database';
-import { App } from '../../server';
-import { User } from '../../models';
+import { App, server } from '../../server';
+import { User, IUser } from '../../models';
+import { Config } from '../../config/config';
+import { Constants } from "../../constants";
+import { AuthenticationUtil } from "../authentication.util.spec";
+import { Cleanup } from "../cleanup.util.spec";
 
-let mongoose = require("mongoose");
 import * as chai from 'chai';
-let expect = chai.expect;
-let should = chai.should();
-const chaiHttp = require('chai-http');
-chai.use(chaiHttp);
+const mongoose = require("mongoose");
+const expect = chai.expect;
+const should = chai.should();
+import * as supertest from 'supertest';
+chai.use(require('chai-http'));
+const api = supertest('http://localhost:8080');
 
-chai.use(chaiHttp);
+let AuthToken: string;
 //Our parent block
 describe('Users', () => {
-    // beforeEach((done) => { //Before each test we empty the database
-    //     User.remove({}, (err) => {
-    //         done();
-    //     });
-    // });
 
-    // Testing the list method.
-    describe('list users', () => {
-        it('it should list all the users', (done) => {
-            chai.request(App)
-                .get('/api/v1/users')
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('array');
-                    res.body.length.should.be.eql(0);
-                    done();
-                });
+    before(async () => {
+        //First we clear the users table.  Start with a clean slate.
+        await User.remove({});
+
+        AuthToken = await AuthenticationUtil.generateUserAndAuthToken();
+    });
+
+     // Testing the list method.
+        it('it should list all the users', async () => {
+            let sres = await api.get(`${Constants.APIEndpoint}${Constants.APIVersion1}/${Constants.UsersEndpoint}`).set("x-access-token", AuthToken);
+            expect(sres.status === 200);
+            expect(sres.body).to.be.an('array');
+            expect(sres.body.length).to.be.equal(1); // It's going to be 1, because we have our seed user that we're using for authentication
         });
+
+        it('it should create a user', async () => {
+            let user = {
+                firstName: "Dave",
+                lastName: "Brown",
+                username: "testUser2",
+                email: "test2@test.com",
+                passwordHash: "test1234",
+                isTokenExpired: false
+            };
+            let res = await chai.request(App.express)
+                .post(`${Constants.APIEndpoint}${Constants.APIVersion1}/users`)
+                .set("x-access-token", AuthToken)
+                .send(user)
+
+            res.should.have.status(201);
+            res.body.should.be.a('object');
+            res.body.should.have.property('model');
+            res.body.model.should.have.property('username');
+            res.body.model.username.should.be.eql('testUser2');
+            res.body.model.passwordHash.should.not.eql('test1234');
+            res.body.model.isTokenExpired.should.eql(false);
+        });
+
+        it('Should create the user in the db and make sure get by id works', async () => {
+            let user = new User({
+                username: "test2435",
+                email: "test2345@test.com",
+                passwordHash: "test",
+                isTokenExpired: false,
+                firstName: "Dave",
+                lastName: "Brown"
+            });
+
+            user = await user.save();
+            let res = await chai.request(App.express)
+                .get(`${Constants.APIEndpoint}${Constants.APIVersion1}/users/${user.id}`)
+                .set("x-access-token", AuthToken);
+            res.should.have.status(200);
+            res.body.should.be.a('object');
+            res.body.should.have.property('username');
+            res.body.username.should.eql('test2435');
+        })
+
+    after(async () => {
+        await Cleanup.cleanup();
     });
 
 });
