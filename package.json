@@ -18,7 +18,7 @@
     "pm2Runner": "pm2 start ecosystem.config.js && pm2 logs all"
   },
   "engines": {
-    "node": "8.2.1"
+    "node": "8.x.x"
   },
   "dependencies": {
     "@types/bcrypt": "^1.0.0",
