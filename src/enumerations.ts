@@ -1,9 +1,12 @@
-// export enum ProcessingState{
-//     Uploaded = 1,
-//     Transforming = 2,
-//     Merging = 3,
-//     Finished = 4
-// }
+export enum SupplierType{
+    Vendor = 1,
+    Wholesaler = 2,
+}
+
+export enum AddressType{
+    Business = 1,
+    Pickup = 2,
+}
 
 export class EnumHelper {
     public static getValuesFromEnum<E>(e: E): Array<Number> {

@@ -7,8 +7,6 @@ export interface IPermission extends IBaseModel {
     description: String;
     value: string;
     href: string;
-    createdAt?: Date; //Automatically created by mongoose.
-    modifiedAt?: Date; //Automatically created by mongoose.
 }
 
 export const PermissionSchema = new Schema({

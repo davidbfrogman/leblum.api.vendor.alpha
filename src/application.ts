@@ -39,6 +39,7 @@ class Application {
     this.express = express();
     this.logging();      // Initialize logging 
     this.healthcheck();  // Router for the healthcheck
+    this.loggingEndpoint();
     this.connectDatabase();     // Setup database connection
     this.secure();       // Turn on security measures
     this.swagger();      // Serve up swagger, this is before authentication, as swagger is open
@@ -58,6 +59,12 @@ class Application {
       this.setupComplete = connected as boolean;
       log.info('Completed Setup, database now online');
     });
+  }
+
+  private loggingEndpoint(){
+    this.express.post('/clientlogs', (request: express.Request, response: express.Response) => {
+          log.log(request.body.level,request.body.message);
+      });
   }
 
   private healthcheck() {
@@ -132,6 +139,8 @@ class Application {
     // The authentication endpoint is 'Open', and should be added to the router pipeline before the other routers
     this.express.use('/authenticate', new routers.AuthenticationRouter().getRouter());
     this.express.use('/api*', new routers.AuthenticationRouter().authMiddleware);
+    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.AddressRouter().getRouter());
+    this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.OrganizationRouter().getRouter());
     this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.UserRouter().getRouter());
     this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.RoleRouter().getRouter());
     this.express.use(Constants.APIEndpoint + Constants.APIVersion1, new routers.PermissionRouter().getRouter());

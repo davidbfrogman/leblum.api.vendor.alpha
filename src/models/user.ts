@@ -1,11 +1,12 @@
 import { mongoose } from '../config/database';
 import { Schema, Model, Document, model } from 'mongoose';
-import { IRole, RoleSchema } from './role';
+import { IRole } from './role';
 import { IBaseModel } from "./index";
 
 export interface IUser extends IBaseModel {
     firstName: string,
     lastName: string,
+    phone: string,
     username: string;
     passwordHash: string;
     email: string;
@@ -21,6 +22,7 @@ export interface IUser extends IBaseModel {
 const UserSchema = new Schema({
     firstName: {type: String, required: true},
     lastName: {type: String, required: true},
+    phone: {type: String, required: false},
     username: {
         type: String, 
         unique:true,

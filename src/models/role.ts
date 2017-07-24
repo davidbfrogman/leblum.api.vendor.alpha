@@ -12,7 +12,7 @@ export interface IRole extends IBaseModel  {
     modifiedAt?: Date; //Automatically created by mongoose.
 }
 
-export const RoleSchema = new Schema({
+const RoleSchema = new Schema({
     name: {type: String},
     description: {type: String},
     href: {type: String},

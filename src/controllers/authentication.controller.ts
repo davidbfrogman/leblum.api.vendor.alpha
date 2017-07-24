@@ -23,7 +23,6 @@ export class AuthenticationController extends BaseController {
         super();
     }
 
-    // At some point come clean this up to use the repo pattern correctly.
     public async authenticate(request: Request, response: Response, next: NextFunction): Promise<any> {
         try {
             let user = await this.repository.getUserForPasswordCheck(request.body.username);
@@ -34,8 +33,10 @@ export class AuthenticationController extends BaseController {
             }
 
             let tokenPayload: ITokenPayload = {
-                userId: user._id,
-                roles: user.roles,
+                userId: user.id,
+                // We're just going to put the name of the role on the token.  
+                roles: user.roles.map(role => { return role.name}),
+                // TODO: We really need to get an organizationId on the token.  I think we're going to need it later.
                 expiration: this.tokenExpiration
             };
 
@@ -77,7 +78,7 @@ export class AuthenticationController extends BaseController {
 
                             let tokenPayload: ITokenPayload = {
                                 userId: user._id,
-                                roles: user.roles,
+                                roles: user.roles.map(role => { return role.name}),
                                 expiration: this.tokenExpiration
                             };
 
